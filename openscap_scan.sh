@@ -12,7 +12,6 @@ oscap xccdf eval \
     --results /home/oscap-results.xml \
     --report /home/oscap-results.html \
     --oval-results \
-    --cpe /usr/share/xml/scap/ssg/content/ssg-ubuntu2204-cpe-dictionary.xml \
     $SCAP_GUIDE
 
 echo "✅ OpenSCAP Scan Complete. Report saved to /home/oscap-results.html"
