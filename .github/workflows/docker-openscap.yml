@@ -50,14 +50,14 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-          # Fetch all branches and create compliance-reports if it doesn't exist
+          # Fetch all branches and switch to compliance-reports
           git fetch origin
           if ! git show-ref --quiet refs/heads/compliance-reports; then
             git checkout --orphan compliance-reports
             git rm -rf .
           else
             git checkout compliance-reports
-            git pull origin compliance-reports
+            git pull origin compliance-reports --rebase
           fi
 
           # Create a branch-specific folder for reports
