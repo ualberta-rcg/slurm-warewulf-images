@@ -3,7 +3,7 @@ name: Build, Scan, and Remediate Ubuntu CIS Image
 on:
   push:
     branches:
-      - main
+      - production
       - testing
 
 jobs:
