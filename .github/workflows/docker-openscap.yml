@@ -20,7 +20,7 @@ jobs:
 
       - name: 🛡️ Run OpenSCAP Scan
         run: |
-          docker run --name openscap-scan ubuntu-cis:latest /openscap_scan.sh
+          docker run --privileged --name openscap-scan ubuntu-cis:latest /openscap_scan.sh
 
       - name: 📤 Extract Scan Report
         run: |
@@ -30,7 +30,7 @@ jobs:
       - name: 🔧 Run OpenSCAP Remediation
         run: |
           docker commit openscap-scan cis-warewulf:latest
-          docker run --name openscap-remediate cis-warewulf:latest /openscap_remediate.sh
+          docker run --privileged --name openscap-remediate cis-warewulf:latest /openscap_remediate.sh
 
       - name: 📤 Extract Remediation Report
         run: |
