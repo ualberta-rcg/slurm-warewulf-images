@@ -34,7 +34,7 @@ jobs:
 
       - name: 📤 Extract Remediation Report
         run: |
-          docker cp openscap-remediate:/home/oscap-results.html ./oscap-results-remediated.html
+          docker cp openscap-remediate:/home/oscap-results-remediated.html ./oscap-results-remediated.html
 
       - name: 📊 Upload Compliance Reports
         uses: actions/upload-artifact@v3
@@ -47,5 +47,5 @@ jobs:
       - name: 🚀 Push Remediated Docker Image
         run: |
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
-          docker tag warewulf:latest rkhoja/cis-warewulf:latest
-          docker push rkhoja/cis-warewulf::latest
+          docker tag cis-warewulf:latest rkhoja/cis-warewulf:latest
+          docker push rkhoja/cis-warewulf:latest
