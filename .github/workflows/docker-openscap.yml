@@ -3,7 +3,7 @@ name: Build, Scan, and Remediate Ubuntu CIS Image
 on:
   push:
     branches:
-      - production
+      - main
       - testing
 
 jobs:
@@ -36,13 +36,45 @@ jobs:
         run: |
           docker cp openscap-remediate:/home/oscap-results-remediated.html ./oscap-results-remediated.html
 
-      - name: 📊 Upload Compliance Reports
+      - name: 📊 Upload Compliance Reports as Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: openscap-reports
           path: |
             oscap-results.html
+            oscap-results.xml
             oscap-results-remediated.html
+
+      - name: 🚀 Commit and Push Compliance Reports
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # Fetch all branches and create compliance-reports if it doesn't exist
+          git fetch origin
+          if ! git show-ref --quiet refs/heads/compliance-reports; then
+            git checkout --orphan compliance-reports
+            git rm -rf .
+          else
+            git checkout compliance-reports
+          fi
+
+          # Copy compliance reports
+          mkdir -p reports
+          mv oscap-results.html reports/
+          mv oscap-results.xml reports/
+          mv oscap-results-remediated.html reports/
+
+          # Commit and push reports
+          git add reports/
+          if git diff --cached --quiet; then
+            echo "No changes to commit in compliance reports."
+          else
+            git commit -m "Add OpenSCAP compliance reports"
+            git push origin compliance-reports
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🚀 Push Remediated Docker Image
         run: |
