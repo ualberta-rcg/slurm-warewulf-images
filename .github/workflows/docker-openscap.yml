@@ -29,8 +29,8 @@ jobs:
 
       - name: 🔧 Run OpenSCAP Remediation
         run: |
-          docker commit openscap-scan cis-warewulf:latest
-          docker run --privileged --name openscap-remediate cis-warewulf:latest /openscap_remediate.sh
+          docker commit openscap-scan cis-warewulf:${{ github.ref_name }}
+          docker run --privileged --name openscap-remediate cis-warewulf:${{ github.ref_name }} /openscap_remediate.sh
 
       - name: 📤 Extract Remediation Report
         run: |
@@ -80,5 +80,5 @@ jobs:
       - name: 🚀 Push Remediated Docker Image
         run: |
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
-          docker tag cis-warewulf:latest rkhoja/cis-warewulf:latest
-          docker push rkhoja/cis-warewulf:latest
+          docker tag cis-warewulf:${{ github.ref_name }} rkhoja/cis-warewulf:${{ github.ref_name }}
+          docker push rkhoja/cis-warewulf:${{ github.ref_name }}
