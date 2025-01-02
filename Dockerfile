@@ -84,6 +84,9 @@ RUN apt update && apt upgrade -y && apt install -y \
     
     && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
 
+# Enable Cockpit Services
+RUN systemctl enable cockpit.socket
+
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
     echo "🔄 Using SCAP Security Guide version: $SSG_VERSION" && \
