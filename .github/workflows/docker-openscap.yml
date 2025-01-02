@@ -39,7 +39,7 @@ jobs:
       - name: 📊 Upload Compliance Reports as Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: openscap-reports
+          name: openscap-reports-${{ github.ref_name }}
           path: |
             oscap-results.html
             oscap-results.xml
@@ -57,20 +57,21 @@ jobs:
             git rm -rf .
           else
             git checkout compliance-reports
+            git pull origin compliance-reports
           fi
 
-          # Copy compliance reports
-          mkdir -p reports
-          mv oscap-results.html reports/
-          mv oscap-results.xml reports/
-          mv oscap-results-remediated.html reports/
+          # Create a branch-specific folder for reports
+          mkdir -p reports/${{ github.ref_name }}
+          mv oscap-results.html reports/${{ github.ref_name }}/oscap-results.html
+          mv oscap-results.xml reports/${{ github.ref_name }}/oscap-results.xml
+          mv oscap-results-remediated.html reports/${{ github.ref_name }}/oscap-results-remediated.html
 
           # Commit and push reports
           git add reports/
           if git diff --cached --quiet; then
             echo "No changes to commit in compliance reports."
           else
-            git commit -m "Add OpenSCAP compliance reports"
+            git commit -m "Add OpenSCAP compliance reports for branch ${{ github.ref_name }}"
             git push origin compliance-reports
           fi
         env:
