@@ -3,15 +3,86 @@ FROM ubuntu:22.04
 # Environment settings
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
-RUN apt update && apt install -y \
-    libopenscap8 \
+# Install System Dependencies and Upgrade
+RUN apt update && apt upgrade -y && apt install -y \
+    # Core Utilities
     wget \
     unzip \
     git \
     curl \
     sudo \
-    && apt clean
+    build-essential \
+    software-properties-common \
+    locales \
+    bash-completion \
+    iproute2 \
+    net-tools \
+    openssh-server \
+    gnupg \
+    lsb-release \
+    ca-certificates \
+    rsync \
+    cron \
+    tzdata \
+    
+    # Monitoring & Debugging Tools
+    htop \
+    iftop \
+    iotop \
+    atop \
+    sysstat \
+    dstat \
+    tcpdump \
+    traceroute \
+    lsof \
+    strace \
+    tmux \
+    screen \
+    less \
+    nano \
+    vim \
+    
+    # Networking Tools
+    iputils-ping \
+    dnsutils \
+    ncdu \
+    nmap \
+    socat \
+    
+    # Python & Pip Dependencies
+    python3-pip \
+    python3-dev \
+    python3-venv \
+    
+    # MySQL Client
+    libmysqlclient-dev \
+    mysql-client \
+    
+    # Cockpit for System Management
+    cockpit \
+    
+    # OpenSCAP Dependencies
+    libopenscap8 \
+    
+    # Security Tools
+    fail2ban \
+    ufw \
+    openssl \
+    gnupg-agent \
+    
+    # Miscellaneous
+    jq \
+    whois \
+    zip \
+    unzip \
+    tree \
+    curl \
+    
+    # Log Management
+    logrotate \
+    rsyslog \
+    
+    && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
 
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
