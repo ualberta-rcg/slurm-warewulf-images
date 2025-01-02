@@ -8,7 +8,6 @@ echo "🔍 Starting OpenSCAP Scan with CIS Level 2 Server Profile..."
 
 oscap xccdf eval \
     --profile $PROFILE \
-    --skip-validation \
     --fetch-remote-resources \
     --results /home/oscap-results.xml \
     --report /home/oscap-results.html \
