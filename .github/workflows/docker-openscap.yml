@@ -1,0 +1,51 @@
+name: Build, Scan, and Remediate Ubuntu CIS Image
+
+on:
+  push:
+    branches:
+      - main
+      - testing
+
+jobs:
+  build-scan-remediate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐳 Build Docker Image
+        run: |
+          docker build -t ubuntu-cis:latest .
+
+      - name: 🛡️ Run OpenSCAP Scan
+        run: |
+          docker run --name openscap-scan ubuntu-cis:latest /openscap_scan.sh
+
+      - name: 📤 Extract Scan Report
+        run: |
+          docker cp openscap-scan:/home/oscap-results.html ./oscap-results.html
+          docker cp openscap-scan:/home/oscap-results.xml ./oscap-results.xml
+
+      - name: 🔧 Run OpenSCAP Remediation
+        run: |
+          docker commit openscap-scan ubuntu-cis-remediated:latest
+          docker run --name openscap-remediate ubuntu-cis-remediated:latest /openscap_remediate.sh
+
+      - name: 📤 Extract Remediation Report
+        run: |
+          docker cp openscap-remediate:/home/oscap-results.html ./oscap-results-remediated.html
+
+      - name: 📊 Upload Compliance Reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: openscap-reports
+          path: |
+            oscap-results.html
+            oscap-results-remediated.html
+
+      - name: 🚀 Push Remediated Docker Image
+        run: |
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+          docker tag ubuntu-cis-remediated:latest myrepo/ubuntu-cis-remediated:latest
+          docker push myrepo/ubuntu-cis-remediated:latest
