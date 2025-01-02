@@ -29,8 +29,8 @@ jobs:
 
       - name: 🔧 Run OpenSCAP Remediation
         run: |
-          docker commit openscap-scan ubuntu-cis-remediated:latest
-          docker run --name openscap-remediate ubuntu-cis-remediated:latest /openscap_remediate.sh
+          docker commit openscap-scan cis-warewulf:latest
+          docker run --name openscap-remediate cis-warewulf:latest /openscap_remediate.sh
 
       - name: 📤 Extract Remediation Report
         run: |
