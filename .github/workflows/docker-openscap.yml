@@ -47,5 +47,5 @@ jobs:
       - name: 🚀 Push Remediated Docker Image
         run: |
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
-          docker tag ubuntu-cis-remediated:latest myrepo/ubuntu-cis-remediated:latest
-          docker push myrepo/ubuntu-cis-remediated:latest
+          docker tag warewulf:latest rkhoja/cis-warewulf:latest
+          docker push rkhoja/cis-warewulf::latest
