@@ -65,8 +65,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     infiniband-diags \
     ibutils \
     libnuma-dev \
-    hwloc-plugins \
-    ucx \
     kmod \
     nvidia-container-toolkit \
     nvidia-docker2 \
