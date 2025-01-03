@@ -87,6 +87,22 @@ RUN apt update && apt upgrade -y && apt install -y \
 # Enable Cockpit Services
 RUN systemctl enable cockpit.socket
 
+# Install Slurm Job Exporter 
+RUN mkdir -p /opt/slurm-job-exporter && \
+    chown -R root:root /opt/slurm-job-exporter && \
+    cd /opt/slurm-job-exporter && \
+    git clone https://github.com/<REPO_URL>.git . && \
+    pip3 install -r requirements.txt && \
+    ln -s /opt/slurm-job-exporter/slurm-job-exporter.py /usr/bin/slurm-job-exporter && \
+    chmod +x /usr/bin/slurm-job-exporter 
+
+# Install Slurm Job Exporter Service
+RUN cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/slurm-job-exporter.service && \
+    sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/system/slurm-job-exporter.service && \
+    chmod 644 /etc/systemd/system/slurm-job-exporter.service && \
+    systemctl daemon-reload && \
+    systemctl enable slurm-job-exporter
+
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
     echo "🔄 Using SCAP Security Guide version: $SSG_VERSION" && \
