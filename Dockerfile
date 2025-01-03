@@ -1,4 +1,4 @@
-FROM ubuntu:22.04
+FROM nvidia/cuda:12.x-base-ubuntu22.04 
 
 # Environment settings
 ENV DEBIAN_FRONTEND=noninteractive
@@ -58,6 +58,18 @@ RUN apt update && apt upgrade -y && apt install -y \
     rdma-core \
     infiniband-diags \
     ibutils \
+    libnuma-dev \
+    hwloc-plugins \
+    ucx \
+    kmod \
+    nvidia-container-toolkit \
+    nvidia-docker2 \
+    libpmix-dev \
+    libevent-dev \
+    libxml2-dev \
+    man-db \
+    numactl \
+    nvidia-cuda-toolkit \
     
     # Networking Tools
     bridge-utils \
@@ -86,13 +98,8 @@ RUN apt update && apt upgrade -y && apt install -y \
     strace \
     
     # Security Tools
-    selinux-utils \
-    policycoreutils \
     auditd \
-    chkrootkit \
-    fail2ban \
     openssl \
-    gnupg-agent \
     
     # Logging Tools
     logrotate \
@@ -113,16 +120,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     # Cockpit for System Management
     cockpit 
 
-# Install CUDA
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y wget gnupg software-properties-common && \
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin && \
-    mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb && \
-    dpkg -i cuda-keyring_1.0-1_all.deb && \
-    add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /" && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y cuda
-
 # Add NVIDIA DCGM Repository
 RUN wget https://developer.download.nvidia.com/compute/DCGM/repos/ubuntu2204/x86_64/nvidia-dcgm_3.1.7_amd64.deb && \
     dpkg -i nvidia-dcgm_3.1.7_amd64.deb && \
@@ -133,12 +130,6 @@ RUN wget https://apt.puppetlabs.com/puppet-release-focal.deb && \
     dpkg -i puppet-release-focal.deb && \
     apt update && apt install -y puppet-agent && \
     rm -f puppet-release-focal.deb
-
-# Install Elastic Filebeat
-RUN curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add - && \
-    echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-8.x.list && \
-    apt update && apt install -y filebeat && \
-    rm -f /etc/apt/sources.list.d/elastic-8.x.list
 
 # Enable Cockpit Services
 RUN systemctl enable cockpit.socket
