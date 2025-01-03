@@ -41,6 +41,8 @@ RUN apt update && apt upgrade -y && apt install -y \
     whois \
     linux-tools-common \
     linux-tools-generic \
+    libopenscap8 \
+    libopenscap-dev \
     
     # Python & Pip Dependencies
     python3 \
