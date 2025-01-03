@@ -113,14 +113,15 @@ RUN apt update && apt upgrade -y && apt install -y \
     # Cockpit for System Management
     cockpit 
 
-
 # Install CUDA
-RUN apt update && apt install -y wget gnupg && \
-    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin -O /etc/apt/preferences.d/cuda-repository-pin-600 && \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y wget gnupg software-properties-common && \
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin && \
+    mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600 && \
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb && \
     dpkg -i cuda-keyring_1.0-1_all.deb && \
-    add-apt-repository ppa:graphics-drivers/ppa && apt update && \
-    apt install -y cuda
+    add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /" && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y cuda
 
 # Add NVIDIA DCGM Repository
 RUN wget https://developer.download.nvidia.com/compute/DCGM/repos/ubuntu2204/x86_64/nvidia-dcgm_3.1.7_amd64.deb && \
