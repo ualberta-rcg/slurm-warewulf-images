@@ -112,16 +112,15 @@ RUN apt update && apt upgrade -y && apt install -y \
     
     # Cockpit for System Management
     cockpit \ 
-    && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
+
 
 # Install CUDA
-RUN apt update && apt install -y wget gnupg && \
+RUN add-apt-repository ppa:graphics-drivers/ppa && apt update && apt install -y wget gnupg && \
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin -O /etc/apt/preferences.d/cuda-repository-pin-600 && \
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb && \
     dpkg -i cuda-keyring_1.0-1_all.deb && \
     apt update && \
-    apt install -y cuda && \
-    apt clean && rm -rf /var/lib/apt/lists/*
+    apt install -y cuda
 
 # Add NVIDIA DCGM Repository
 RUN wget https://developer.download.nvidia.com/compute/DCGM/repos/ubuntu2204/x86_64/nvidia-dcgm_3.1.7_amd64.deb && \
@@ -172,6 +171,9 @@ RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/c
     else \
         echo "❌ Failed to download SCAP Security Guide"; exit 1; \
     fi
+
+# Clean Up APT Repo
+RUN apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
 
 # Add OpenSCAP Scripts
 COPY openscap_scan.sh /openscap_scan.sh
