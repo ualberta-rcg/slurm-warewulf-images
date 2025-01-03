@@ -2,6 +2,12 @@ FROM nvidia/cuda:12.x-base-ubuntu22.04
 
 # Environment settings
 ENV DEBIAN_FRONTEND=noninteractive
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+# Add support for loading NVIDIA modules at boot
+RUN echo "nvidia" >> /etc/modules
+RUN echo "nvidia_uvm" >> /etc/modules
 
 # Install System Dependencies and Upgrade
 RUN apt update && apt upgrade -y && apt install -y \
@@ -119,6 +125,8 @@ RUN apt update && apt upgrade -y && apt install -y \
     
     # Cockpit for System Management
     cockpit 
+
+RUN mkdir -p /var/run/nvidia-persistenced
 
 # Add NVIDIA DCGM Repository
 RUN wget https://developer.download.nvidia.com/compute/DCGM/repos/ubuntu2204/x86_64/nvidia-dcgm_3.1.7_amd64.deb && \
