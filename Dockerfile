@@ -111,15 +111,15 @@ RUN apt update && apt upgrade -y && apt install -y \
     ansible \
     
     # Cockpit for System Management
-    cockpit \ 
+    cockpit 
 
 
 # Install CUDA
-RUN add-apt-repository ppa:graphics-drivers/ppa && apt update && apt install -y wget gnupg && \
+RUN apt update && apt install -y wget gnupg && \
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin -O /etc/apt/preferences.d/cuda-repository-pin-600 && \
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb && \
     dpkg -i cuda-keyring_1.0-1_all.deb && \
-    apt update && \
+    add-apt-repository ppa:graphics-drivers/ppa && apt update && \
     apt install -y cuda
 
 # Add NVIDIA DCGM Repository
