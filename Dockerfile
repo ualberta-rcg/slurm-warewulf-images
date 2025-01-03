@@ -24,7 +24,62 @@ RUN apt update && apt upgrade -y && apt install -y \
     rsync \
     cron \
     tzdata \
+
+    # HPC Tools & Libraries
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libhwloc-dev \
+    libpam-dev \
+    libmysqlclient-dev \
+    openmpi-bin \
+    libopenmpi-dev \
+    mpich \
+    ganglia-monitor \
+    collectd \
+    rdma-core \
+    infiniband-diags \
+    ibutils \
+
+    # Security Tools
+    selinux-utils \
+    policycoreutils \
+    auditd \
+    aide \
+    chkrootkit \
+    rkhunter \
     
+    # Monitoring and Logging
+    fluentd \
+    filebeat \
+    logrotate \
+    nmon \
+    vmstat \
+    perf \
+    sysstat \
+    iotop \
+
+    # Networking Tools
+    bridge-utils \
+    vlan \
+    ethtool \
+    mtr \
+    iperf3 \
+    iptables-persistent \
+
+    # Automation Tools
+    ansible \
+    puppet-agent \
+    
+    # File System and Storage Tools
+    nfs-common \
+    cifs-utils \
+
+    # Stability and Cluster Utilities
+    watchdog \
+    corosync \
+    pacemaker \
+    rsync \
+
     # Monitoring & Debugging Tools
     htop \
     iftop \
@@ -91,7 +146,7 @@ RUN systemctl enable cockpit.socket
 RUN mkdir -p /opt/slurm-job-exporter && \
     chown -R root:root /opt/slurm-job-exporter && \
     cd /opt/slurm-job-exporter && \
-    git clone https://github.com/<REPO_URL>.git . && \
+    git clone https://github.com/guilbaults/slurm-job-exporter.git . && \
     pip3 install -r requirements.txt && \
     ln -s /opt/slurm-job-exporter/slurm-job-exporter.py /usr/bin/slurm-job-exporter && \
     chmod +x /usr/bin/slurm-job-exporter 
