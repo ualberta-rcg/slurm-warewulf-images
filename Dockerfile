@@ -1,5 +1,5 @@
-FROM ghcr.io/hpcng/warewulf-debian:12.0
-#FROM nvidia/cuda:12.6.3-base-ubuntu22.04
+#FROM ghcr.io/hpcng/warewulf-debian:12.0
+FROM nvidia/cuda:12.6.3-base-ubuntu22.04
 
 # Environment settings
 ENV DEBIAN_FRONTEND=noninteractive
@@ -18,7 +18,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     unzip \
     zip \
     git \
-    sudo \
     build-essential \
     software-properties-common \
     locales \
@@ -44,6 +43,9 @@ RUN apt update && apt upgrade -y && apt install -y \
     linux-tools-generic \
     libopenscap8 \
     libopenscap-dev \
+    systemd \
+    openssh-server \
+    sudo \
     
     # Python & Pip Dependencies
     python3 \
@@ -169,6 +171,15 @@ RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/c
         echo "❌ Failed to download SCAP Security Guide"; exit 1; \
     fi
 
+# Create a default user
+RUN useradd -m -s /bin/bash wwuser && \
+    echo "wwuser:wwpassword" | chpasswd && \
+    usermod -aG sudo wwuser
+
+# Enable SSH
+RUN mkdir /run/sshd && chmod 755 /run/sshd
+EXPOSE 22
+
 # Clean Up APT Repo
 RUN apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
 
@@ -178,5 +189,6 @@ COPY openscap_remediate.sh /openscap_remediate.sh
 
 # Make scripts executable
 RUN chmod +x /openscap_scan.sh /openscap_remediate.sh
+#CMD ["/bin/bash"]
 
-CMD ["/bin/bash"]
+CMD ["/lib/systemd/systemd"]
