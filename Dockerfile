@@ -76,6 +76,7 @@ RUN apt update && apt upgrade -y && apt install -y \
     man-db \
     numactl \
     nvidia-cuda-toolkit \
+    prometheus-node-exporter \
     
     # Networking Tools
     bridge-utils \
@@ -139,9 +140,6 @@ RUN wget https://apt.puppetlabs.com/puppet-release-focal.deb && \
     apt update && apt install -y puppet-agent && \
     rm -f puppet-release-focal.deb
 
-# Enable Cockpit Services
-RUN systemctl enable cockpit.socket
-
 # Install Slurm Job Exporter 
 RUN mkdir -p /opt/slurm-job-exporter && \
     chown -R root:root /opt/slurm-job-exporter && \
@@ -155,7 +153,11 @@ RUN mkdir -p /opt/slurm-job-exporter && \
 RUN cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/slurm-job-exporter.service && \
     sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/system/slurm-job-exporter.service && \
     chmod 644 /etc/systemd/system/slurm-job-exporter.service && \
-    systemctl daemon-reload && \
+    systemctl daemon-reload
+
+# Enable Services
+RUN systemctl enable cockpit.socket && \
+    systemctl enable prometheus-node-exporter  && \
     systemctl enable slurm-job-exporter
 
 # Fetch the latest SCAP Security Guide
