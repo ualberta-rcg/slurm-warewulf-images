@@ -89,11 +89,8 @@ RUN apt update && apt upgrade -y && apt install -y \
     selinux-utils \
     policycoreutils \
     auditd \
-    aide \
     chkrootkit \
-    rkhunter \
     fail2ban \
-    ufw \
     openssl \
     gnupg-agent \
     
@@ -117,14 +114,19 @@ RUN apt update && apt upgrade -y && apt install -y \
     cockpit \ 
     && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
 
-# Install CUDA and NVIDIA DCGM
+# Install CUDA
 RUN apt update && apt install -y wget gnupg && \
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin -O /etc/apt/preferences.d/cuda-repository-pin-600 && \
     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-keyring_1.0-1_all.deb && \
     dpkg -i cuda-keyring_1.0-1_all.deb && \
     apt update && \
-    apt install -y cuda nvidia-dcgm && \
+    apt install -y cuda && \
     apt clean && rm -rf /var/lib/apt/lists/*
+
+# Add NVIDIA DCGM Repository
+RUN wget https://developer.download.nvidia.com/compute/DCGM/repos/ubuntu2204/x86_64/nvidia-dcgm_3.1.7_amd64.deb && \
+    dpkg -i nvidia-dcgm_3.1.7_amd64.deb && \
+    rm -f nvidia-dcgm_3.1.7_amd64.deb
 
 # Install Puppet Agent
 RUN wget https://apt.puppetlabs.com/puppet-release-focal.deb && \
