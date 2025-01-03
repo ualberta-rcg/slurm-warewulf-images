@@ -148,13 +148,13 @@ RUN mkdir -p /opt/slurm-job-exporter && \
 RUN cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/slurm-job-exporter.service && \
     sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/system/slurm-job-exporter.service && \
     chmod 644 /etc/systemd/system/slurm-job-exporter.service && \
-    systemctl daemon-reload
+    systemctl --no-daemon daemon-reload
 
 # Enable Services
-RUN systemctl enable cockpit.socket && \
-    systemctl enable nvidia-dcgm && \
-    systemctl enable prometheus-node-exporter  && \
-    systemctl enable slurm-job-exporter
+RUN systemctl --no-daemon enable cockpit.socket && \
+    systemctl --no-daemon enable nvidia-dcgm && \
+    systemctl --no-daemon enable prometheus-node-exporter  && \
+    systemctl --no-daemon enable slurm-job-exporter
 
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
