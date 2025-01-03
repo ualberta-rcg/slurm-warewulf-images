@@ -128,11 +128,6 @@ RUN apt update && apt upgrade -y && apt install -y \
 
 RUN mkdir -p /var/run/nvidia-persistenced
 
-# Add NVIDIA DCGM Repository
-RUN wget https://developer.download.nvidia.com/compute/DCGM/repos/ubuntu2204/x86_64/nvidia-dcgm_3.1.7_amd64.deb && \
-    dpkg -i nvidia-dcgm_3.1.7_amd64.deb && \
-    rm -f nvidia-dcgm_3.1.7_amd64.deb
-
 # Install Puppet Agent
 RUN wget https://apt.puppetlabs.com/puppet-release-focal.deb && \
     dpkg -i puppet-release-focal.deb && \
