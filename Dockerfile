@@ -75,6 +75,7 @@ RUN apt update && apt upgrade -y && apt install -y \
     numactl \
     nvidia-cuda-toolkit \
     prometheus-node-exporter \
+    datacenter-gpu-manager \
     
     # Networking Tools
     bridge-utils \
@@ -155,6 +156,7 @@ RUN cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/sl
 
 # Enable Services
 RUN systemctl enable cockpit.socket && \
+    systemctl enable nvidia-dcgm && \
     systemctl enable prometheus-node-exporter  && \
     systemctl enable slurm-job-exporter
 
