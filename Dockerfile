@@ -1,4 +1,5 @@
-FROM nvidia/cuda:12.6.3-base-ubuntu22.04
+FROM ghcr.io/hpcng/warewulf-debian:12.0
+#FROM nvidia/cuda:12.6.3-base-ubuntu22.04
 
 # Environment settings
 ENV DEBIAN_FRONTEND=noninteractive
@@ -62,7 +63,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     openmpi-bin \
     libopenmpi-dev \
     mpich \
-    ganglia-monitor \
     collectd \
     rdma-core \
     infiniband-diags \
@@ -122,9 +122,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     watchdog \
     corosync \
     pacemaker \
-    
-    # Automation Tools
-    ansible \
     
     # Cockpit for System Management
     cockpit 
