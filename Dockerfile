@@ -33,6 +33,8 @@ RUN apt update && apt upgrade -y && apt install -y \
     tmux \
     jq \
     whois \
+    linux-tools-common \
+    linux-tools-generic \
     
     # Python & Pip Dependencies
     python3-pip \
@@ -79,8 +81,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     atop \
     sysstat \
     dstat \
-    vmstat \
-    perf \
     nmon \
     lsof \
     strace \
@@ -98,8 +98,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     gnupg-agent \
     
     # Logging Tools
-    fluentd \
-    filebeat \
     logrotate \
     rsyslog \
     
@@ -114,11 +112,22 @@ RUN apt update && apt upgrade -y && apt install -y \
     
     # Automation Tools
     ansible \
-    puppet-agent \
     
     # Cockpit for System Management
     cockpit \ 
     && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
+
+# Install Puppet Agent
+RUN wget https://apt.puppetlabs.com/puppet-release-focal.deb && \
+    dpkg -i puppet-release-focal.deb && \
+    apt update && apt install -y puppet-agent && \
+    rm -f puppet-release-focal.deb
+
+# Install Elastic Filebeat
+RUN curl -fsSL https://artifacts.elastic.co/GPG-KEY-elasticsearch | apt-key add - && \
+    echo "deb https://artifacts.elastic.co/packages/8.x/apt stable main" | tee -a /etc/apt/sources.list.d/elastic-8.x.list && \
+    apt update && apt install -y filebeat && \
+    rm -f /etc/apt/sources.list.d/elastic-8.x.list
 
 # Enable Cockpit Services
 RUN systemctl enable cockpit.socket
