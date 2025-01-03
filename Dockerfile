@@ -147,14 +147,14 @@ RUN mkdir -p /opt/slurm-job-exporter && \
 # Install Slurm Job Exporter Service
 RUN cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/slurm-job-exporter.service && \
     sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/system/slurm-job-exporter.service && \
-    chmod 644 /etc/systemd/system/slurm-job-exporter.service && \
-    systemctl --no-daemon daemon-reload
+    chmod 644 /etc/systemd/system/slurm-job-exporter.service 
 
-# Enable Services
-RUN systemctl --no-daemon enable cockpit.socket && \
-    systemctl --no-daemon enable nvidia-dcgm && \
-    systemctl --no-daemon enable prometheus-node-exporter  && \
-    systemctl --no-daemon enable slurm-job-exporter
+# Enable Services Manually Without systemctl
+RUN mkdir -p /etc/systemd/system/multi-user.target.wants && \
+    ln -s /lib/systemd/system/cockpit.socket /etc/systemd/system/multi-user.target.wants/cockpit.socket || true && \
+    ln -s /lib/systemd/system/nvidia-dcgm.service /etc/systemd/system/multi-user.target.wants/nvidia-dcgm.service || true && \
+    ln -s /lib/systemd/system/prometheus-node-exporter.service /etc/systemd/system/multi-user.target.wants/prometheus-node-exporter.service || true && \
+    ln -s /etc/systemd/system/slurm-job-exporter.service /etc/systemd/system/multi-user.target.wants/slurm-job-exporter.service || true
 
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
