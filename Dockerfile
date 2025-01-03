@@ -7,9 +7,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && apt upgrade -y && apt install -y \
     # Core Utilities
     wget \
-    unzip \
-    git \
     curl \
+    unzip \
+    zip \
+    git \
     sudo \
     build-essential \
     software-properties-common \
@@ -24,85 +25,14 @@ RUN apt update && apt upgrade -y && apt install -y \
     rsync \
     cron \
     tzdata \
-
-    # HPC Tools & Libraries
-    libssl-dev \
-    libcurl4-openssl-dev \
-    libhwloc-dev \
-    libpam-dev \
-    libmysqlclient-dev \
-    openmpi-bin \
-    libopenmpi-dev \
-    mpich \
-    ganglia-monitor \
-    collectd \
-    rdma-core \
-    infiniband-diags \
-    ibutils \
-
-    # Security Tools
-    selinux-utils \
-    policycoreutils \
-    auditd \
-    aide \
-    chkrootkit \
-    rkhunter \
-    
-    # Monitoring and Logging
-    fluentd \
-    filebeat \
-    logrotate \
-    nmon \
-    vmstat \
-    perf \
-    sysstat \
-    iotop \
-
-    # Networking Tools
-    bridge-utils \
-    vlan \
-    ethtool \
-    mtr \
-    iperf3 \
-    iptables-persistent \
-
-    # Automation Tools
-    ansible \
-    puppet-agent \
-    
-    # File System and Storage Tools
-    nfs-common \
-    cifs-utils \
-
-    # Stability and Cluster Utilities
-    watchdog \
-    corosync \
-    pacemaker \
-    rsync \
-
-    # Monitoring & Debugging Tools
-    htop \
-    iftop \
-    iotop \
-    atop \
-    sysstat \
-    dstat \
-    tcpdump \
-    traceroute \
-    lsof \
-    strace \
-    tmux \
-    screen \
-    less \
+    tree \
     nano \
     vim \
-    
-    # Networking Tools
-    iputils-ping \
-    dnsutils \
-    ncdu \
-    nmap \
-    socat \
+    less \
+    screen \
+    tmux \
+    jq \
+    whois \
     
     # Python & Pip Dependencies
     python3-pip \
@@ -113,31 +43,82 @@ RUN apt update && apt upgrade -y && apt install -y \
     libmysqlclient-dev \
     mysql-client \
     
-    # Cockpit for System Management
-    cockpit \
+    # HPC Tools & Libraries
+    libssl-dev \
+    libcurl4-openssl-dev \
+    libhwloc-dev \
+    libpam-dev \
+    openmpi-bin \
+    libopenmpi-dev \
+    mpich \
+    ganglia-monitor \
+    collectd \
+    rdma-core \
+    infiniband-diags \
+    ibutils \
     
-    # OpenSCAP Dependencies
-    libopenscap8 \
+    # Networking Tools
+    bridge-utils \
+    vlan \
+    ethtool \
+    mtr \
+    iperf3 \
+    iptables-persistent \
+    iputils-ping \
+    dnsutils \
+    ncdu \
+    nmap \
+    socat \
+    traceroute \
+    tcpdump \
+    
+    # Monitoring & Debugging Tools
+    htop \
+    iftop \
+    iotop \
+    atop \
+    sysstat \
+    dstat \
+    vmstat \
+    perf \
+    nmon \
+    lsof \
+    strace \
     
     # Security Tools
+    selinux-utils \
+    policycoreutils \
+    auditd \
+    aide \
+    chkrootkit \
+    rkhunter \
     fail2ban \
     ufw \
     openssl \
     gnupg-agent \
     
-    # Miscellaneous
-    jq \
-    whois \
-    zip \
-    unzip \
-    tree \
-    curl \
-    
-    # Log Management
+    # Logging Tools
+    fluentd \
+    filebeat \
     logrotate \
     rsyslog \
     
-    && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
+    # File System and Storage Tools
+    nfs-common \
+    cifs-utils \
+    
+    # Cluster & Stability Utilities
+    watchdog \
+    corosync \
+    pacemaker \
+    
+    # Automation Tools
+    ansible \
+    puppet-agent \
+    
+    # Cockpit for System Management
+    cockpit \ &&
+    apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
 
 # Enable Cockpit Services
 RUN systemctl enable cockpit.socket
