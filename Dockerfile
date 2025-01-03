@@ -117,8 +117,8 @@ RUN apt update && apt upgrade -y && apt install -y \
     puppet-agent \
     
     # Cockpit for System Management
-    cockpit \ &&
-    apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
+    cockpit \ 
+    && apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
 
 # Enable Cockpit Services
 RUN systemctl enable cockpit.socket
