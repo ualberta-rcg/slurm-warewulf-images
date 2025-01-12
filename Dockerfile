@@ -7,11 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb && \
-    dpkg -i cuda-keyring_1.1-1_all.deb
-
 # Install System Dependencies and Upgrade
-RUN apt update && apt upgrade -y && apt install -y \
+RUN apt install -y \
     # Core Utilities
     wget \
     curl \
@@ -41,6 +38,15 @@ RUN apt update && apt upgrade -y && apt install -y \
     openscap-scanner \
     systemd \
     sudo 
+
+# Add NVIDIA repositories and update package lists
+RUN curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg && \
+    curl -s -L https://nvidia.github.io/libnvidia-container/stable/ubuntu24.04/libnvidia-container.list | \
+    sed 's#deb #deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] #' > /etc/apt/sources.list.d/nvidia-container-toolkit.list && \
+    curl -s -L https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-ubuntu2404.pin -o /etc/apt/preferences.d/cuda-repository-pin-600 && \
+    curl -s -L https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/cuda-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/cuda-keyring.gpg] http://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/ /" > /etc/apt/sources.list.d/cuda.list && \
+    apt update && apt upgrade -y 
     
 # Install Python & Pip Dependencies
 RUN apt install -y \
