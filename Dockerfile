@@ -98,8 +98,7 @@ RUN apt install -y \
     sysstat \
     dstat \
     nmon \
-    lsof \
-    strace 
+    lsof 
     
 # Install Security Tools
 RUN apt install -y \       
