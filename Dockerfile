@@ -1,5 +1,6 @@
 #FROM ghcr.io/hpcng/warewulf-debian:12.0
-FROM nvidia/cuda:12.6.3-base-ubuntu22.04
+#FROM nvidia/cuda:12.6.3-base-ubuntu22.04
+FROM nvidia/cuda:12.6.3-runtime-ubuntu24.04
 
 # Environment settings
 ENV DEBIAN_FRONTEND=noninteractive
@@ -16,13 +17,11 @@ RUN apt update && apt upgrade -y && apt install -y \
     wget \
     curl \
     unzip \
-    zip \
     git \
     build-essential \
     software-properties-common \
     locales \
     bash-completion \
-    iproute2 \
     net-tools \
     openssh-server \
     gnupg \
@@ -34,7 +33,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     tree \
     nano \
     vim \
-    less \
     screen \
     tmux \
     jq \
@@ -44,18 +42,12 @@ RUN apt update && apt upgrade -y && apt install -y \
     libopenscap8 \
     libopenscap-dev \
     systemd \
-    openssh-server \
     sudo \
     
     # Python & Pip Dependencies
     python3 \
     python3-pip \
-    python3-dev \
     python3-venv \
-    
-    # MySQL Client
-    libmysqlclient-dev \
-    mysql-client \
     
     # HPC Tools & Libraries
     libssl-dev \
@@ -65,7 +57,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     openmpi-bin \
     libopenmpi-dev \
     mpich \
-    collectd \
     rdma-core \
     infiniband-diags \
     ibutils \
@@ -93,7 +84,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     dnsutils \
     ncdu \
     nmap \
-    socat \
     traceroute \
     tcpdump \
     
@@ -114,16 +104,12 @@ RUN apt update && apt upgrade -y && apt install -y \
     
     # Logging Tools
     logrotate \
-    rsyslog \
     
     # File System and Storage Tools
     nfs-common \
-    cifs-utils \
     
     # Cluster & Stability Utilities
     watchdog \
-    corosync \
-    pacemaker \
     
     # Cockpit for System Management
     cockpit 
