@@ -90,7 +90,7 @@ RUN apt install -y \
     tcpdump 
     
 # Install Monitoring & Debugging Tools
-RUN apt install -y \       
+RUN DEBIAN_FRONTEND=noninteractive apt install -y \
     htop \
     iftop \
     iotop \
@@ -98,7 +98,8 @@ RUN apt install -y \
     sysstat \
     dstat \
     nmon \
-    lsof 
+    lsof \ 
+    strace
     
 # Install Security Tools
 RUN apt install -y \       
