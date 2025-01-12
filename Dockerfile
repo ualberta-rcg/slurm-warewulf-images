@@ -7,9 +7,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
-# Add support for loading NVIDIA modules at boot
-RUN echo "nvidia" >> /etc/modules
-RUN echo "nvidia_uvm" >> /etc/modules
+# Add NVIDIA repositories and update package lists
+RUN curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg && \
+    curl -s -L https://nvidia.github.io/libnvidia-container/stable/ubuntu24.04/libnvidia-container.list | \
+    sed 's#deb #deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] #' > /etc/apt/sources.list.d/nvidia-container-toolkit.list && \
+    curl -s -L https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-ubuntu2404.pin -o /etc/apt/preferences.d/cuda-repository-pin-600 && \
+    curl -s -L https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring.gpg | gpg --dearmor -o /usr/share/keyrings/cuda-keyring.gpg && \
+    echo "deb [signed-by=/usr/share/keyrings/cuda-keyring.gpg] http://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/ /" > /etc/apt/sources.list.d/cuda.list
 
 # Install System Dependencies and Upgrade
 RUN apt update && apt upgrade -y && apt install -y \
@@ -41,12 +45,16 @@ RUN apt update && apt upgrade -y && apt install -y \
     linux-tools-generic \
     openscap-scanner \
     systemd \
-    sudo \
-    # Python & Pip Dependencies
+    sudo 
+    
+# Install Python & Pip Dependencies
+RUN apt install -y \
     python3 \
     python3-pip \
-    python3-venv \
-    # HPC Tools & Libraries
+    python3-venv 
+    
+# Install HPC Tools & Libraries
+RUN apt install -y \    
     libssl-dev \
     libcurl4-openssl-dev \
     libhwloc-dev \
@@ -67,8 +75,10 @@ RUN apt update && apt upgrade -y && apt install -y \
     numactl \
     nvidia-cuda-toolkit \
     prometheus-node-exporter \
-    datacenter-gpu-manager \
-    # Networking Tools
+    datacenter-gpu-manager
+    
+# Install Networking Tools
+RUN apt install -y \         
     bridge-utils \
     vlan \
     ethtool \
@@ -80,8 +90,10 @@ RUN apt update && apt upgrade -y && apt install -y \
     ncdu \
     nmap \
     traceroute \
-    tcpdump \
-    # Monitoring & Debugging Tools
+    tcpdump 
+    
+# Install Monitoring & Debugging Tools
+RUN apt install -y \       
     htop \
     iftop \
     iotop \
@@ -90,17 +102,23 @@ RUN apt update && apt upgrade -y && apt install -y \
     dstat \
     nmon \
     lsof \
-    strace \
-    # Security Tools
+    strace 
+    
+# Install Security Tools
+RUN apt install -y \       
     auditd \
-    openssl \
-    # Logging Tools
-    logrotate \
-    # File System and Storage Tools
-    nfs-common \
-    # Cluster & Stability Utilities
-    watchdog \
-    # Cockpit for System Management
+    openssl 
+    
+# Install File System and Storage Tools
+RUN apt install -y \      
+    nfs-common 
+    
+# Install Cluster & Stability Utilities
+RUN apt install -y \      
+    watchdog 
+    
+# Install Cockpit for System Management
+RUN apt install -y \     
     cockpit 
 
 RUN mkdir -p /var/run/nvidia-persistenced
@@ -154,6 +172,10 @@ RUN useradd -m -s /bin/bash wwuser && \
 # Enable SSH
 RUN mkdir /run/sshd && chmod 755 /run/sshd
 EXPOSE 22
+
+# Add support for loading NVIDIA modules at boot
+RUN echo "nvidia" >> /etc/modules
+RUN echo "nvidia_uvm" >> /etc/modules
 
 # Clean Up APT Repo
 RUN apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
