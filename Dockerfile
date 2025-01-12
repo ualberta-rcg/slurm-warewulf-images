@@ -32,10 +32,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     tree \
     nano \
     vim \
-    screen \
     tmux \
     jq \
-    whois \
     linux-tools-common \
     linux-tools-generic \
     openscap-scanner \
@@ -47,10 +45,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libssl-dev \
     libcurl4-openssl-dev \
     libhwloc-dev \
-    libpam-dev \
     openmpi-bin \
     libopenmpi-dev \
-    mpich \
     rdma-core \
     infiniband-diags \
     ibutils \
@@ -60,7 +56,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libpmix-dev \
     libevent-dev \
     libxml2-dev \
-    man-db \
     numactl \
     nvidia-cuda-toolkit \
     prometheus-node-exporter \
