@@ -39,16 +39,13 @@ RUN apt update && apt upgrade -y && apt install -y \
     whois \
     linux-tools-common \
     linux-tools-generic \
-    libopenscap8 \
-    libopenscap-dev \
+    openscap-scanner \
     systemd \
     sudo \
-    
     # Python & Pip Dependencies
     python3 \
     python3-pip \
     python3-venv \
-    
     # HPC Tools & Libraries
     libssl-dev \
     libcurl4-openssl-dev \
@@ -63,7 +60,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     libnuma-dev \
     kmod \
     nvidia-container-toolkit \
-    nvidia-docker2 \
     libpmix-dev \
     libevent-dev \
     libxml2-dev \
@@ -72,7 +68,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     nvidia-cuda-toolkit \
     prometheus-node-exporter \
     datacenter-gpu-manager \
-    
     # Networking Tools
     bridge-utils \
     vlan \
@@ -86,7 +81,6 @@ RUN apt update && apt upgrade -y && apt install -y \
     nmap \
     traceroute \
     tcpdump \
-    
     # Monitoring & Debugging Tools
     htop \
     iftop \
@@ -97,20 +91,15 @@ RUN apt update && apt upgrade -y && apt install -y \
     nmon \
     lsof \
     strace \
-    
     # Security Tools
     auditd \
     openssl \
-    
     # Logging Tools
     logrotate \
-    
     # File System and Storage Tools
     nfs-common \
-    
     # Cluster & Stability Utilities
     watchdog \
-    
     # Cockpit for System Management
     cockpit 
 
