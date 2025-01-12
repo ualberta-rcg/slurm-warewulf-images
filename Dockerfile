@@ -75,22 +75,15 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
     htop \
     iftop \
     iotop \
-    atop \
     sysstat \
-    dstat \
-    nmon \
     lsof \ 
-    strace \       
-    auditd \
+    strace \    
     openssl \
     ethtool \
-    mtr \
     iperf3 \
     iptables-persistent \
     iputils-ping \
     dnsutils \
-    ncdu \
-    nmap \
     traceroute \
     tcpdump 
 
