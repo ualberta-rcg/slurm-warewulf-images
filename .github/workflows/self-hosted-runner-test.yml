@@ -1,0 +1,51 @@
+name: Self-Hosted Runner Test
+
+# Manual trigger for testing
+on:
+  workflow_dispatch:
+
+jobs:
+  test-runner:
+    runs-on: self-hosted
+    name: Test Self-Hosted Runner
+    steps:
+      # Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Verify basic environment setup
+      - name: Check environment details
+        run: |
+          echo "Testing environment details:"
+          uname -a
+          whoami
+          echo "Home directory: $HOME"
+          echo "Shell: $SHELL"
+
+      # Test sudo access
+      - name: Test sudo access
+        run: |
+          echo "Verifying sudo access:"
+          sudo -v && echo "Sudo works!" || echo "Sudo failed!"
+
+      # Update and install a package
+      - name: Update system and install a package
+        run: |
+          echo "Updating package lists and installing curl..."
+          sudo apt-get update
+          sudo apt-get install -y curl
+          curl --version
+
+      # Test file operations with sudo
+      - name: Test file creation with sudo
+        run: |
+          echo "Creating and writing to a test file with sudo:"
+          sudo bash -c 'echo "Self-hosted runner test file" > /root/runner-test-file.txt'
+          sudo cat /root/runner-test-file.txt
+
+      # Clean up
+      - name: Clean up test artifacts
+        run: |
+          echo "Cleaning up test files..."
+          sudo rm -f /root/runner-test-file.txt
+          echo "Cleanup complete!"
