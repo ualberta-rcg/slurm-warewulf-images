@@ -1,0 +1,6 @@
+jobs:
+  build:
+    runs-on: self-hosted
+    steps:
+      - name: Run as root
+        run: sudo apt-get update
