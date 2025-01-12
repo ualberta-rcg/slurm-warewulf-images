@@ -70,7 +70,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     cockpit
     
 # Install Networking, Monitoring & Debugging Tools
-RUN DEBIAN_FRONTEND=noninteractive apt install -y \
+RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
+    apt install -f -y \
     htop \
     iftop \
     iotop \
