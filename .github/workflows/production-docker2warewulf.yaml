@@ -1,0 +1,30 @@
+name: Production Warewulf Docker Import
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prod-docker-import:
+    runs-on: self-hosted
+    name: Import Docker for Production
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Environment Variables
+        run: echo "CONTAINER_IMAGE=rkhoja/cis-warewulf:production" >> $GITHUB_ENV
+
+      - name: Pull Docker Image
+        run: |
+          echo "Pulling production container image..."
+          sudo docker pull $CONTAINER_IMAGE
+
+      - name: Import Docker Image into Warewulf
+        run: |
+          echo "Importing production container into Warewulf..."
+          sudo wwctl container import docker://$CONTAINER_IMAGE production-container
+
+      - name: Verify Import
+        run: |
+          echo "Verifying the imported container..."
+          sudo wwctl container list
