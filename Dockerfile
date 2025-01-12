@@ -8,7 +8,7 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 # Install System Dependencies and Upgrade
-RUN apt install -y \
+RUN apt update && apt install -y \
     # Core Utilities
     wget \
     curl \
