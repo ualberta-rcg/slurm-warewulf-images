@@ -40,9 +40,9 @@ RUN apt update && apt install -y \
     sudo 
 
 # Add NVIDIA repositories and update package lists
-RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb && \
-    dpkg -i cuda-keyring_1.1-1_all.deb && \
-    apt update && apt upgrade -y 
+#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb && \
+#    dpkg -i cuda-keyring_1.1-1_all.deb && \
+#    apt update && apt upgrade -y 
     
 # Install Python & Pip Dependencies
 RUN apt install -y \
@@ -117,6 +117,9 @@ RUN apt install -y \
 # Install Cockpit for System Management
 RUN apt install -y \     
     cockpit 
+
+# Lets Upgrade one more time
+RUN apt update && apt upgrade -y 
 
 RUN mkdir -p /var/run/nvidia-persistenced
 
