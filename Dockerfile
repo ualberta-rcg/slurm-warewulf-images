@@ -102,7 +102,7 @@ RUN mkdir -p /opt/slurm-job-exporter && \
     git clone https://github.com/guilbaults/slurm-job-exporter.git . && \
     python3 -m venv /opt/slurm-job-exporter/venv && \
     /opt/slurm-job-exporter/venv/bin/pip install -r requirements.txt && \
-    ln -s /opt/slurm-job-exporter/venv/bin/slurm-job-exporter.py /usr/bin/slurm-job-exporter && \
+    ln -s /opt/slurm-job-exporter/slurm-job-exporter.py /usr/bin/slurm-job-exporter && \
     chmod +x /usr/bin/slurm-job-exporter
 
 # Install Slurm Job Exporter Service
