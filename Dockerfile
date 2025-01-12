@@ -7,6 +7,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb && \
+    dpkg -i cuda-keyring_1.1-1_all.deb
+
 # Install System Dependencies and Upgrade
 RUN apt update && apt upgrade -y && apt install -y \
     # Core Utilities
