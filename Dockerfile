@@ -7,8 +7,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
+# Temporarily disable service configuration
+RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
+
 # Install System Dependencies and Upgrade
-RUN apt update && apt install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
     # Core Utilities
     wget \
     curl \
@@ -37,21 +40,10 @@ RUN apt update && apt install -y \
     linux-tools-generic \
     openscap-scanner \
     systemd \
-    sudo 
-
-# Add NVIDIA repositories and update package lists
-#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/cuda-keyring_1.1-1_all.deb && \
-#    dpkg -i cuda-keyring_1.1-1_all.deb && \
-#    apt update && apt upgrade -y 
-    
-# Install Python & Pip Dependencies
-RUN apt install -y \
+    sudo \
     python3 \
     python3-pip \
-    python3-venv 
-    
-# Install HPC Tools & Libraries
-RUN apt install -y \    
+    python3-venv \
     libssl-dev \
     libcurl4-openssl-dev \
     libhwloc-dev \
@@ -72,12 +64,24 @@ RUN apt install -y \
     numactl \
     nvidia-cuda-toolkit \
     prometheus-node-exporter \
-    datacenter-gpu-manager
+    datacenter-gpu-manager \
+    nfs-common \
+    watchdog \
+    cockpit
     
-# Install Networking Tools
-RUN apt install -y \         
-    bridge-utils \
-    vlan \
+# Install Networking, Monitoring & Debugging Tools
+RUN DEBIAN_FRONTEND=noninteractive apt install -y \
+    htop \
+    iftop \
+    iotop \
+    atop \
+    sysstat \
+    dstat \
+    nmon \
+    lsof \ 
+    strace \       
+    auditd \
+    openssl \
     ethtool \
     mtr \
     iperf3 \
@@ -88,40 +92,13 @@ RUN apt install -y \
     nmap \
     traceroute \
     tcpdump 
-    
-# Install Monitoring & Debugging Tools
-RUN DEBIAN_FRONTEND=noninteractive apt install -y \
-    htop \
-    iftop \
-    iotop \
-    atop \
-    sysstat \
-    dstat \
-    nmon \
-    lsof \ 
-    strace
-    
-# Install Security Tools
-RUN apt install -y \       
-    auditd \
-    openssl 
-    
-# Install File System and Storage Tools
-RUN apt install -y \      
-    nfs-common 
-    
-# Install Cluster & Stability Utilities
-RUN apt install -y \      
-    watchdog 
-    
-# Install Cockpit for System Management
-RUN apt install -y \     
-    cockpit 
 
 # Lets Upgrade one more time
-RUN apt update && apt upgrade -y 
-
-RUN mkdir -p /var/run/nvidia-persistenced
+RUN apt update && apt upgrade -y && \
+    mkdir -p /var/run/nvidia-persistenced && \
+    echo "nvidia" >> /etc/modules && \
+    echo "nvidia_uvm" >> /etc/modules && \
+    mkdir /run/sshd && chmod 755 /run/sshd
 
 # Install Puppet Agent
 RUN wget https://apt.puppetlabs.com/puppet-release-focal.deb && \
@@ -169,16 +146,10 @@ RUN useradd -m -s /bin/bash wwuser && \
     echo "wwuser:wwpassword" | chpasswd && \
     usermod -aG sudo wwuser
 
-# Enable SSH
-RUN mkdir /run/sshd && chmod 755 /run/sshd
 EXPOSE 22
 
-# Add support for loading NVIDIA modules at boot
-RUN echo "nvidia" >> /etc/modules
-RUN echo "nvidia_uvm" >> /etc/modules
-
 # Clean Up APT Repo
-RUN apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/*
+RUN apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* && rm /usr/sbin/policy-rc.d
 
 # Add OpenSCAP Scripts
 COPY openscap_scan.sh /openscap_scan.sh
