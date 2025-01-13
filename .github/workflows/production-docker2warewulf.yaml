@@ -22,7 +22,7 @@ jobs:
       - name: Import Docker Image into Warewulf
         run: |
           echo "Importing production container into Warewulf..."
-          sudo wwctl container import docker://$CONTAINER_IMAGE production-container
+          sudo wwctl container import docker://$CONTAINER_IMAGE slurm-node-prod
 
       - name: Verify Import
         run: |
