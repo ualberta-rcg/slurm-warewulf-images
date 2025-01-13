@@ -23,6 +23,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     bash-completion \
     net-tools \
     openssh-server \
+    openssh-client \
     gnupg \
     lsb-release \
     ca-certificates \
@@ -36,6 +37,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     jq \
     linux-tools-common \
     linux-tools-generic \
+	linux-image-generic \
     openscap-scanner \
     systemd \
     sudo \
@@ -62,7 +64,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     datacenter-gpu-manager \
     nfs-common \
     watchdog \
-    cockpit
+    cockpit 
     
 # Install Networking, Monitoring & Debugging Tools
 RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
@@ -80,7 +82,18 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
     iputils-ping \
     dnsutils \
     traceroute \
-    tcpdump 
+    tcpdump \
+    apt-utils \
+	systemd-sysv \
+	dbus \
+	isc-dhcp-client \
+	pciutils \
+	strace \
+	nfs-common \
+	ethtool\
+	ifupdown \
+	ifmetric \
+	netbase
 
 # Lets Upgrade one more time
 RUN apt update && apt upgrade -y && \
