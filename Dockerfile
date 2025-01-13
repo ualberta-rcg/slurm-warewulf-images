@@ -1,3 +1,4 @@
+#test
 #FROM ghcr.io/hpcng/warewulf-debian:12.0
 #FROM nvidia/cuda:12.6.3-base-ubuntu22.04
 FROM nvidia/cuda:12.6.3-runtime-ubuntu24.04
