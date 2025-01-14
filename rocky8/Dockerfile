@@ -1,4 +1,4 @@
-FROM rockylinux:8
+FROM nvidia/cuda:12.6.3-base-rockylinux8
 
 # Environment settings
 ENV NVIDIA_VISIBLE_DEVICES=all
