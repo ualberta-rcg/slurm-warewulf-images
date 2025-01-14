@@ -56,29 +56,36 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-
-          # Create or checkout the compliance-reports branch
+    
+          # Fetch all branches
           git fetch origin
-          if git show-ref --quiet refs/heads/compliance-reports; then
-            git checkout compliance-reports
-            git reset --hard origin/compliance-reports # Ensure local is in sync with remote
-          else
+    
+          if ! git show-ref --quiet refs/heads/compliance-reports; then
+            # If branch doesn't exist, create it
             git checkout --orphan compliance-reports
+            git reset --hard
+            mkdir -p reports
+          else
+            # If branch exists, check it out and preserve existing content
+            git checkout compliance-reports
+            git pull origin compliance-reports || true
           fi
-
-          # Create a branch-specific folder for reports
+    
+          # Ensure reports directory exists
           mkdir -p reports/${{ github.ref_name }}
+    
+          # Move new reports
           mv oscap-results.html reports/${{ github.ref_name }}/oscap-results.html
           mv oscap-results.xml reports/${{ github.ref_name }}/oscap-results.xml
           mv oscap-results-remediated.html reports/${{ github.ref_name }}/oscap-results-remediated.html
-
-          # Commit and push reports
-          git add reports/*
-          if git diff --staged --quiet; then
+    
+          # Stage and commit
+          git add reports/
+          if git diff --cached --quiet; then
             echo "No changes to commit in compliance reports."
           else
             git commit -m "Add OpenSCAP compliance reports for branch ${{ github.ref_name }}"
-            git push origin compliance-reports # Removed the -f
+            git push -f origin compliance-reports
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
