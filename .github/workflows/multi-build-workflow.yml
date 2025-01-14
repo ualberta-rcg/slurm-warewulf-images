@@ -79,7 +79,7 @@ jobs:
             echo "No changes to commit in compliance reports."
           else
             git commit -m "Add OpenSCAP compliance reports for branch ${{ github.ref_name }}"
-            git push -f origin compliance-reports
+            git push origin compliance-reports
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
