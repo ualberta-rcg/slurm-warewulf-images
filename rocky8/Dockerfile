@@ -1,11 +1,14 @@
-FROM rockylinux:8
+FROM nvidia/cuda:12.6.3-base-rockylinux8
 
 # Environment settings
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 # Install System Dependencies and Upgrade
-RUN dnf update -y && dnf install -y \
+RUN dnf update -y && \
+    dnf install -y epel-release && \
+    dnf update -y && \
+    dnf install -y \
     # Core Utilities
     wget \
     curl \
@@ -16,7 +19,6 @@ RUN dnf update -y && dnf install -y \
     openssh-server \
     openssh-clients \
     gnupg2 \
-    lsb-release \
     ca-certificates \
     rsync \
     tzdata \
@@ -27,16 +29,17 @@ RUN dnf update -y && dnf install -y \
     jq \
     kernel \
     kernel-devel \
+    redhat-lsb-core \
     sudo \
     python3 \
     python3-pip \
     python3-virtualenv \
     openssl-devel \
     libcurl-devel \
-    hwloc-devel \
+    hwloc \
     openmpi \
     numactl \
-    prometheus-node-exporter \
+    golang-github-prometheus-node-exporter \
     nfs-utils \
     cockpit \
     htop \
@@ -55,8 +58,7 @@ RUN dnf update -y && dnf install -y \
     pciutils \
     libxml2-devel \
     libevent-devel \
-    libpmix-devel \
-    libnuma-devel \
+    numactl-libs \
     dbus \
     rdma-core \
     openscap-scanner && \
@@ -85,9 +87,10 @@ RUN mkdir -p /opt/slurm-job-exporter && \
     ln -s /opt/slurm-job-exporter/slurm-job-exporter.py /usr/bin/slurm-job-exporter && \
     chmod +x /usr/bin/slurm-job-exporter
 
-# Configure Slurm Job Exporter Service
-COPY slurm-job-exporter.service /etc/systemd/system/slurm-job-exporter.service
-RUN chmod 644 /etc/systemd/system/slurm-job-exporter.service && \
+# Install Slurm Job Exporter Service
+RUN cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/slurm-job-exporter.service && \
+    sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/system/slurm-job-exporter.service && \
+    chmod 644 /etc/systemd/system/slurm-job-exporter.service && \
     systemctl enable slurm-job-exporter.service || true
 
 # Fetch the latest SCAP Security Guide
