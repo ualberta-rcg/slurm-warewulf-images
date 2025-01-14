@@ -19,10 +19,19 @@ jobs:
           echo "Pulling testing container image..."
           sudo docker pull $CONTAINER_IMAGE
 
+      - name: Delete WareWulf Container
+        run: |
+          wwctl container delete slurm-node-test -y | true
+
       - name: Import Docker Image into Warewulf
         run: |
-          echo "Importing testing container into Warewulf..."
-          sudo wwctl container import docker://$CONTAINER_IMAGE testing-container
+          echo "Importing slurm-node-test container into Warewulf..."
+          sudo wwctl container import docker://$CONTAINER_IMAGE slurm-node-test
+
+      - name: Import Kernel from Docker Image into Warewulf
+        run: |
+          echo "Importing Kernel from slurm-node-test container into Warewulf..."
+          sudo wwctl kernel import -DC slurm-node-test
 
       - name: Verify Import
         run: |
