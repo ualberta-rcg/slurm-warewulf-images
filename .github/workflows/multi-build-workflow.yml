@@ -32,8 +32,8 @@ jobs:
       - name: 📤 Extract Scan Report
         run: |
           TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
-          mv oscap-results.html oscap-results-${TIMESTAMP}.html
-          mv oscap-results.xml oscap-results-${TIMESTAMP}.xml
+          mv /home/oscap-results.html oscap-results-${TIMESTAMP}.html
+          mv /home/oscap-results.xml oscap-results-${TIMESTAMP}.xml
           echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
 
       - name: 🔧 Run OpenSCAP Remediation
@@ -43,7 +43,7 @@ jobs:
 
       - name: 📤 Extract Remediation Report
         run: |
-          mv oscap-results-remediated.html oscap-results-remediated-${{ env.TIMESTAMP }}.html
+          mv /home/oscap-results-remediated.html oscap-results-remediated-${{ env.TIMESTAMP }}.html
 
       - name: 📊 Upload Compliance Reports as Artifacts
         uses: actions/upload-artifact@v3
