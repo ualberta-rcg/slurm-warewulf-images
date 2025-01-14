@@ -23,7 +23,9 @@ jobs:
         run: |
           sudo wwctl container delete slurm-node-test -y | true
           sleep 15
-
+          sudo wwctl container delete slurm-node-test -y | true
+          sleep 15
+          
       - name: Import Docker Image into Warewulf
         run: |
           echo "Importing slurm-node-test container into Warewulf..."
