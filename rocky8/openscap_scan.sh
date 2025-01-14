@@ -2,7 +2,7 @@
 
 # Define SCAP Guide and Profile
 SCAP_GUIDE="/usr/share/xml/scap/ssg/content/ssg-rhel8-ds.xml"
-PROFILE="xccdf_org.ssgproject.content_profile_cis_level2_server"
+PROFILE="xccdf_org.ssgproject.content_profile_cis"
 
 echo "🔍 Starting OpenSCAP Scan with CIS Level 2 Server Profile..."
 
