@@ -7,6 +7,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 # Install System Dependencies and Upgrade
 RUN dnf update -y && \
     dnf install -y epel-release && \
+    dnf update -y && \
     dnf install -y \
     # Core Utilities
     wget \
