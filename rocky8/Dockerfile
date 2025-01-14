@@ -85,9 +85,10 @@ RUN mkdir -p /opt/slurm-job-exporter && \
     ln -s /opt/slurm-job-exporter/slurm-job-exporter.py /usr/bin/slurm-job-exporter && \
     chmod +x /usr/bin/slurm-job-exporter
 
-# Configure Slurm Job Exporter Service
-COPY slurm-job-exporter.service /etc/systemd/system/slurm-job-exporter.service
-RUN chmod 644 /etc/systemd/system/slurm-job-exporter.service && \
+# Install Slurm Job Exporter Service
+RUN cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/slurm-job-exporter.service && \
+    sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/system/slurm-job-exporter.service && \
+    chmod 644 /etc/systemd/system/slurm-job-exporter.service && \
     systemctl enable slurm-job-exporter.service || true
 
 # Fetch the latest SCAP Security Guide
