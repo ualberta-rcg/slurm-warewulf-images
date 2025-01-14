@@ -64,7 +64,7 @@ jobs:
             git rm -rf -- . ':!reports'
           else
             git checkout compliance-reports
-            git pull origin compliance-reports --rebase
+            git pull origin compliance-reports
           fi
 
           # Create a branch-specific folder for reports
