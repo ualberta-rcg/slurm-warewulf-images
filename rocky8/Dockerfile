@@ -5,7 +5,9 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 # Install System Dependencies and Upgrade
-RUN dnf update -y && dnf install -y \
+RUN dnf update -y && \
+    dnf install -y epel-release && \
+    dnf install -y \
     # Core Utilities
     wget \
     curl \
@@ -16,7 +18,6 @@ RUN dnf update -y && dnf install -y \
     openssh-server \
     openssh-clients \
     gnupg2 \
-    lsb-release \
     ca-certificates \
     rsync \
     tzdata \
@@ -27,13 +28,14 @@ RUN dnf update -y && dnf install -y \
     jq \
     kernel \
     kernel-devel \
+    lsb-release \
     sudo \
     python3 \
     python3-pip \
     python3-virtualenv \
     openssl-devel \
     libcurl-devel \
-    hwloc-devel \
+    hwloc \
     openmpi \
     numactl \
     prometheus-node-exporter \
@@ -55,8 +57,7 @@ RUN dnf update -y && dnf install -y \
     pciutils \
     libxml2-devel \
     libevent-devel \
-    libpmix-devel \
-    libnuma-devel \
+    libnuma \
     dbus \
     rdma-core \
     openscap-scanner && \
