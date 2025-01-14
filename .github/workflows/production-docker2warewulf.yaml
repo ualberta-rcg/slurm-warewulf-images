@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  prod-docker-import:
+  test-docker-import:
     runs-on: self-hosted
     name: Import Docker for Production
     steps:
@@ -16,13 +16,25 @@ jobs:
 
       - name: Pull Docker Image
         run: |
-          echo "Pulling production container image..."
+          echo "Pulling testing container image..."
           sudo docker pull $CONTAINER_IMAGE
 
+      - name: Delete WareWulf Container
+        run: |
+          sudo wwctl container delete slurm-node-prod -y | true
+          sleep 15
+          sudo wwctl container delete slurm-node-prod -y | true
+          sleep 15
+          
       - name: Import Docker Image into Warewulf
         run: |
-          echo "Importing production container into Warewulf..."
+          echo "Importing slurm-node-prod container into Warewulf..."
           sudo wwctl container import docker://$CONTAINER_IMAGE slurm-node-prod
+
+      - name: Import Kernel from Docker Image into Warewulf
+        run: |
+          echo "Importing Kernel from slurm-node-prod container into Warewulf..."
+          sudo wwctl kernel import -DC slurm-node-prod
 
       - name: Verify Import
         run: |
