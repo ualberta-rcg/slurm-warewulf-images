@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define SCAP Guide and Profile
-SCAP_GUIDE="/usr/share/xml/scap/ssg/content/ssg-rocky8-ds.xml"
+SCAP_GUIDE="/usr/share/xml/scap/ssg/content/ssg-rhel8-ds.xml"
 PROFILE="xccdf_org.ssgproject.content_profile_cis_level2_server"
 
 echo "🔍 Starting OpenSCAP Scan with CIS Level 2 Server Profile..."
