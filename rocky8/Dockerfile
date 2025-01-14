@@ -29,7 +29,7 @@ RUN dnf update -y && \
     jq \
     kernel \
     kernel-devel \
-    lsb-release \
+    redhat-lsb-core \
     sudo \
     python3 \
     python3-pip \
@@ -39,7 +39,7 @@ RUN dnf update -y && \
     hwloc \
     openmpi \
     numactl \
-    prometheus-node-exporter \
+    golang-github-prometheus-node-exporter \
     nfs-utils \
     cockpit \
     htop \
@@ -58,7 +58,7 @@ RUN dnf update -y && \
     pciutils \
     libxml2-devel \
     libevent-devel \
-    libnuma \
+    numactl-libs \
     dbus \
     rdma-core \
     openscap-scanner && \
