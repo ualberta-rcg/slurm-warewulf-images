@@ -4,6 +4,7 @@ on:
   push:
     branches-ignore:
       - main
+      - compliance-reports
 
 jobs:
   build-scan-remediate:
