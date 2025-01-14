@@ -1,0 +1,90 @@
+name: Build, Scan, and Remediate CIS Image
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  build-scan-remediate:
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_REPO: rkhoja/slurm-node
+
+    steps:
+      - name: 🛠️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐳 Set OS-Specific Directory
+        id: os_dir
+        run: echo "os_dir=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
+      - name: 🐳 Build Docker Image
+        run: |
+          docker build -t $DOCKER_REPO:${GITHUB_REF_NAME} ./${GITHUB_REF_NAME}
+
+      - name: 🛡️ Run OpenSCAP Scan
+        run: |
+          docker run --privileged --name openscap-scan $DOCKER_REPO:${GITHUB_REF_NAME} /openscap_scan.sh
+
+      - name: 📤 Extract Scan Report
+        run: |
+          docker cp openscap-scan:/home/oscap-results.html ./oscap-results.html
+          docker cp openscap-scan:/home/oscap-results.xml ./oscap-results.xml
+
+      - name: 🔧 Run OpenSCAP Remediation
+        run: |
+          docker commit openscap-scan $DOCKER_REPO:${GITHUB_REF_NAME}-remediated
+          docker run --privileged --name openscap-remediate $DOCKER_REPO:${GITHUB_REF_NAME}-remediated /openscap_remediate.sh
+
+      - name: 📤 Extract Remediation Report
+        run: |
+          docker cp openscap-remediate:/home/oscap-results-remediated.html ./oscap-results-remediated.html
+
+      - name: 📊 Upload Compliance Reports as Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: openscap-reports-${{ github.ref_name }}
+          path: |
+            oscap-results.html
+            oscap-results.xml
+            oscap-results-remediated.html
+
+      - name: 🚀 Commit and Push Compliance Reports
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # Fetch all branches and switch to compliance-reports
+          git fetch origin
+          if ! git show-ref --quiet refs/heads/compliance-reports; then
+            git checkout --orphan compliance-reports
+            git rm -rf .
+          else
+            git checkout compliance-reports
+            git pull origin compliance-reports --rebase
+          fi
+
+          # Create a branch-specific folder for reports
+          mkdir -p reports/${{ github.ref_name }}
+          mv oscap-results.html reports/${{ github.ref_name }}/oscap-results.html
+          mv oscap-results.xml reports/${{ github.ref_name }}/oscap-results.xml
+          mv oscap-results-remediated.html reports/${{ github.ref_name }}/oscap-results-remediated.html
+
+          # Commit and push reports
+          git add reports/
+          if git diff --cached --quiet; then
+            echo "No changes to commit in compliance reports."
+          else
+            git commit -m "Add OpenSCAP compliance reports for branch ${{ github.ref_name }}"
+            git push -f origin compliance-reports
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🚀 Push Remediated Docker Image
+        run: |
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+          docker tag $DOCKER_REPO:${GITHUB_REF_NAME}-remediated $DOCKER_REPO:${GITHUB_REF_NAME}
+          docker push $DOCKER_REPO:${GITHUB_REF_NAME}
