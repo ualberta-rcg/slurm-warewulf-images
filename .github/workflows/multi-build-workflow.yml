@@ -61,7 +61,6 @@ jobs:
           git fetch origin
           if ! git show-ref --quiet refs/heads/compliance-reports; then
             git checkout --orphan compliance-reports
-            git rm -rf .
           else
             git checkout compliance-reports
             git pull origin compliance-reports --rebase
