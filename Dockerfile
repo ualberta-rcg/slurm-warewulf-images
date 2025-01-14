@@ -1,7 +1,7 @@
 #test
 #FROM ghcr.io/hpcng/warewulf-debian:12.0
-#FROM nvidia/cuda:12.6.3-base-ubuntu22.04
-FROM nvidia/cuda:12.6.3-runtime-ubuntu24.04
+FROM nvidia/cuda:12.6.3-base-ubuntu22.04
+#FROM nvidia/cuda:12.6.3-runtime-ubuntu24.04
 
 # Environment settings
 ENV DEBIAN_FRONTEND=noninteractive
@@ -34,10 +34,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     vim \
     tmux \
     jq \
-    linux-tools-common \
-    linux-tools-generic \
     linux-image-generic \
-    openscap-scanner \
     systemd \
     sudo \
     python3 \
@@ -53,16 +50,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     ibutils \
     libnuma-dev \
     kmod \
-    nvidia-container-toolkit \
     libpmix-dev \
     libevent-dev \
     libxml2-dev \
     numactl \
-    nvidia-cuda-toolkit \
     prometheus-node-exporter \
     datacenter-gpu-manager \
     nfs-common \
-    watchdog \
     cockpit 
     
 # Install Networking, Monitoring & Debugging Tools
@@ -90,6 +84,7 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
     ethtool\
     ifupdown \
     ifmetric \
+    openscap-scanner \
     netbase
 
 # Lets Upgrade one more time
