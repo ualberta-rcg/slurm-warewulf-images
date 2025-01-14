@@ -74,7 +74,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     pciutils \
     ethtool\
     ifupdown \
-    openscap-scanner \
+    libopenscap8 \
     netbase \
     ipmitool \
     rdma-core

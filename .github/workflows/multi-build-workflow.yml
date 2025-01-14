@@ -31,8 +31,10 @@ jobs:
 
       - name: 📤 Extract Scan Report
         run: |
-          docker cp openscap-scan:/home/oscap-results.html ./oscap-results.html
-          docker cp openscap-scan:/home/oscap-results.xml ./oscap-results.xml
+          TIMESTAMP=$(date +'%Y%m%d-%H%M%S')
+          mv oscap-results.html oscap-results-${TIMESTAMP}.html
+          mv oscap-results.xml oscap-results-${TIMESTAMP}.xml
+          echo "TIMESTAMP=$TIMESTAMP" >> $GITHUB_ENV
 
       - name: 🔧 Run OpenSCAP Remediation
         run: |
@@ -41,16 +43,16 @@ jobs:
 
       - name: 📤 Extract Remediation Report
         run: |
-          docker cp openscap-remediate:/home/oscap-results-remediated.html ./oscap-results-remediated.html
+          mv oscap-results-remediated.html oscap-results-remediated-${{ env.TIMESTAMP }}.html
 
       - name: 📊 Upload Compliance Reports as Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: openscap-reports-${{ github.ref_name }}
           path: |
-            oscap-results.html
-            oscap-results.xml
-            oscap-results-remediated.html
+            oscap-results-${{ env.TIMESTAMP }}.html
+            oscap-results-${{ env.TIMESTAMP }}.xml
+            oscap-results-remediated-${{ env.TIMESTAMP }}.html
 
       - name: 🚀 Commit and Push Compliance Reports
         run: |
@@ -69,16 +71,16 @@ jobs:
 
           # Create a branch-specific folder for reports
           mkdir -p reports/${{ github.ref_name }}
-          mv oscap-results.html reports/${{ github.ref_name }}/oscap-results.html
-          mv oscap-results.xml reports/${{ github.ref_name }}/oscap-results.xml
-          mv oscap-results-remediated.html reports/${{ github.ref_name }}/oscap-results-remediated.html
+          mv oscap-results-${{ env.TIMESTAMP }}.html reports/${{ github.ref_name }}/oscap-results-${{ env.TIMESTAMP }}.html
+          mv oscap-results-${{ env.TIMESTAMP }}.xml reports/${{ github.ref_name }}/oscap-results-${{ env.TIMESTAMP }}.xml
+          mv oscap-results-remediated-${{ env.TIMESTAMP }}.html reports/${{ github.ref_name }}/oscap-results-remediated-${{ env.TIMESTAMP }}.html
 
           # Commit and push reports
           git add reports/
           if git diff --cached --quiet; then
             echo "No changes to commit in compliance reports."
           else
-            git commit -m "Add OpenSCAP compliance reports for branch ${{ github.ref_name }}"
+            git commit -m "Add OpenSCAP compliance reports for branch ${{ github.ref_name }} at ${{ env.TIMESTAMP }}"
             git push -f origin compliance-reports
           fi
         env:
