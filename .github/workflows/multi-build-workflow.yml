@@ -57,15 +57,13 @@ jobs:
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
 
-          # Fetch all branches and switch to compliance-reports
+          # Create or checkout the compliance-reports branch
           git fetch origin
-          if ! git show-ref --quiet refs/heads/compliance-reports; then
-            git checkout --orphan compliance-reports
-            git pull
-            git rm -rf -- . ':!reports'
-          else
+          if git show-ref --quiet refs/heads/compliance-reports; then
             git checkout compliance-reports
-            git pull origin compliance-reports
+            git reset --hard origin/compliance-reports # Ensure local is in sync with remote
+          else
+            git checkout --orphan compliance-reports
           fi
 
           # Create a branch-specific folder for reports
@@ -75,12 +73,12 @@ jobs:
           mv oscap-results-remediated.html reports/${{ github.ref_name }}/oscap-results-remediated.html
 
           # Commit and push reports
-          git add reports/
-          if git diff --cached --quiet; then
+          git add reports/*
+          if git diff --staged --quiet; then
             echo "No changes to commit in compliance reports."
           else
             git commit -m "Add OpenSCAP compliance reports for branch ${{ github.ref_name }}"
-            git push origin compliance-reports
+            git push origin compliance-reports # Removed the -f
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
