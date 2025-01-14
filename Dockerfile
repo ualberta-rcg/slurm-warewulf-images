@@ -1,5 +1,3 @@
-#test
-#FROM ghcr.io/hpcng/warewulf-debian:12.0
 FROM nvidia/cuda:12.6.3-base-ubuntu24.04
 #FROM nvidia/cuda:12.6.3-runtime-ubuntu24.04
 
@@ -45,9 +43,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libhwloc-dev \
     openmpi-bin \
     libopenmpi-dev \
-    rdma-core \
-    infiniband-diags \
-    ibutils \
     libnuma-dev \
     kmod \
     libpmix-dev \
@@ -57,10 +52,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     prometheus-node-exporter \
     datacenter-gpu-manager \
     nfs-common \
-    cockpit 
-    
-# Install Networking, Monitoring & Debugging Tools
-RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
+    cockpit && \
+    DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
     apt install -f -y \
     htop \
     iftop \
@@ -79,13 +72,13 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
     apt-utils \
     systemd-sysv \
     dbus \
-    isc-dhcp-client \
     pciutils \
     ethtool\
     ifupdown \
-    ifmetric \
     openscap-scanner \
-    netbase
+    netbase \
+    ipmitool \
+    rdma-core
 
 # Lets Upgrade one more time
 RUN apt update && apt upgrade -y && \
