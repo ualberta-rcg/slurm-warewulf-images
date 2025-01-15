@@ -110,3 +110,47 @@ jobs:
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
           docker tag $DOCKER_REPO:${GITHUB_REF_NAME}-remediated $DOCKER_REPO:${GITHUB_REF_NAME}
           docker push $DOCKER_REPO:${GITHUB_REF_NAME}
+
+  warewulf-docker-import:
+    runs-on: self-hosted
+    name: Import Docker image of a Slurm Node info WareWulf
+    needs: build-scan-remediate 
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Environment Variables
+        run: |
+          IMAGE_NAME=$(echo "rkhoja/cis-warewulf:production" | awk -F'/' '{print $2}' | awk -F':' '{print $1}')
+          if [ -z "$IMAGE_NAME" ]; then
+            IMAGE_NAME="default-name"
+          fi
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          echo "SHORT_COMMIT_ID=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Pull Docker Image
+        run: |
+          echo "Pulling production container image..."
+          sudo docker pull $CONTAINER_IMAGE
+
+      - name: Delete WareWulf Container
+        run: |
+          sudo wwctl container delete slurm-node-prod -y | true
+          sleep 15
+          sudo wwctl container delete slurm-node-prod -y | true
+          sleep 15
+          
+      - name: Import Docker Image into Warewulf
+        run: |
+          echo "Importing slurm-node-prod container into Warewulf..."
+          sudo wwctl container import docker://$CONTAINER_IMAGE slurm-node-prod --force
+
+      - name: Import Kernel from Docker Image into Warewulf
+        run: |
+          echo "Importing Kernel from slurm-node-prod container into Warewulf..."
+          sudo wwctl kernel import -DC slurm-node-prod
+
+      - name: Verify Import
+        run: |
+          echo "Verifying the imported container..."
+          sudo wwctl container list
