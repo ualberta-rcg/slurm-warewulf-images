@@ -43,7 +43,7 @@ jobs:
       - name: 📊 Upload Compliance Reports as Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: openscap-reports-${{ github.ref_name }}
+          name: openscap-reports-$GITHUB_REF_NAME
           path: |
             oscap-results.html
             oscap-results.xml
