@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DOCKER_REPO: rkhoja/slurm-node
+      DOCKER_REPO: ${{ env.CONTAINER_IMAGE }}
 
     steps:
       - name: 🛠️ Checkout Repository
@@ -115,13 +115,17 @@ jobs:
     runs-on: self-hosted
     name: Import Docker image of a Slurm Node info WareWulf
     needs: build-scan-remediate 
+
+    env:
+      DOCKER_REPO: ${{ env.CONTAINER_IMAGE }}
+    
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
       - name: Set Environment Variables
         run: |
-          IMAGE_NAME=$(echo "rkhoja/cis-warewulf:production" | awk -F'/' '{print $2}' | awk -F':' '{print $1}')
+          IMAGE_NAME=$(echo "$DOCKER_REPO:${GITHUB_REF_NAME}" | awk -F'/' '{print $2}' | awk -F':' '{print $1}')
           if [ -z "$IMAGE_NAME" ]; then
             IMAGE_NAME="default-name"
           fi
@@ -131,24 +135,17 @@ jobs:
       - name: Pull Docker Image
         run: |
           echo "Pulling production container image..."
-          sudo docker pull $CONTAINER_IMAGE
+          sudo docker pull $DOCKER_REPO:${GITHUB_REF_NAME}
 
-      - name: Delete WareWulf Container
-        run: |
-          sudo wwctl container delete slurm-node-prod -y | true
-          sleep 15
-          sudo wwctl container delete slurm-node-prod -y | true
-          sleep 15
-          
       - name: Import Docker Image into Warewulf
         run: |
           echo "Importing slurm-node-prod container into Warewulf..."
-          sudo wwctl container import docker://$CONTAINER_IMAGE slurm-node-prod --force
+          sudo wwctl container import docker://$DOCKER_REPO:${GITHUB_REF_NAME} $IMAGE_NAME-${GITHUB_REF_NAME}-SHORT_COMMIT_ID --force
 
       - name: Import Kernel from Docker Image into Warewulf
         run: |
           echo "Importing Kernel from slurm-node-prod container into Warewulf..."
-          sudo wwctl kernel import -DC slurm-node-prod
+          sudo wwctl kernel import -DC $IMAGE_NAME-${GITHUB_REF_NAME}-SHORT_COMMIT_ID
 
       - name: Verify Import
         run: |
