@@ -16,9 +16,10 @@ oscap xccdf eval \
 echo "✅ Remediation Complete. Report saved to /home/oscap-results-remediated.html"
 
 rm -rf /usr/share/xml/scap/ssg/content
+rm /openscap_*.sh
 
 # Clean Up APT Repo
-apt remove openscap -y 
+apt remove openscap-scanner -y 
 apt autoremove -y 
 apt clean 
 rm -rf /var/lib/apt/lists/* 
