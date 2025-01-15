@@ -79,6 +79,8 @@ jobs:
             cp -r temp-compliance-reports/reports/* reports/
           fi
 
+          ls -l temp-compliance-reports/reports/*
+
           # Clean up the temporary directory
           rm -rf temp-compliance-reports
     
@@ -89,6 +91,8 @@ jobs:
           mv oscap-results.html reports/${{ github.ref_name }}/oscap-results.html
           mv oscap-results.xml reports/${{ github.ref_name }}/oscap-results.xml
           mv oscap-results-remediated.html reports/${{ github.ref_name }}/oscap-results-remediated.html
+
+          ls -l reports/*
     
           # Stage and commit
           git add reports/
