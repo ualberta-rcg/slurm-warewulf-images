@@ -33,6 +33,7 @@ RUN dnf update -y && \
     python3 \
     python3-pip \
     python3-virtualenv \
+    python3-wheel \
     openssl-devel \
     libcurl-devel \
     hwloc \
@@ -60,7 +61,8 @@ RUN dnf update -y && \
     numactl-libs \
     dbus \
     rdma-core \
-    openscap-scanner && \
+    openscap-scanner \
+    --allowerasing --nobest && \
     dnf clean all
 
 # NVIDIA Modules Setup
