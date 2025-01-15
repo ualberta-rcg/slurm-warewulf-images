@@ -19,7 +19,7 @@ rm -rf /usr/share/xml/scap/ssg/content
 rm /openscap_*.sh
 
 # Clean Up APT Repo
-apt remove openscap-scanner -y 
+apt remove libopenscap8 -y 
 apt autoremove -y 
 apt clean 
 rm -rf /var/lib/apt/lists/* 
