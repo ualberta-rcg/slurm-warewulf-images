@@ -32,7 +32,6 @@ RUN dnf update -y && \
     sudo \
     python3 \
     python3-pip \
-    python3-virtualenv \
     openssl-devel \
     libcurl-devel \
     hwloc \
