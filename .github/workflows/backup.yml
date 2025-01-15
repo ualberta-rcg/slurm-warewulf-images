@@ -1,8 +1,8 @@
 name: Build, Scan, and Remediate CIS Image
 
-on:
-  push:
-    branches-ignore:
+#on:
+#  push:
+ #   branches-ignore:
       - main
       - compliance-reports
 
@@ -11,20 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DOCKER_REPO: ${{ env.CONTAINER_IMAGE }}
-      GITHUB_REF_NAME: ${{ github.ref_name }}   
-      
+      DOCKER_REPO: rkhoja/slurm-node
+
     steps:
       - name: 🛠️ Checkout Repository
         uses: actions/checkout@v4
 
+      - name: 🐳 Set OS-Specific Directory
+        id: os_dir
+        run: echo "os_dir=${GITHUB_REF_NAME}" >> $GITHUB_ENV
+
       - name: 🐳 Build Docker Image
         run: |
-          docker build -t $DOCKER_REPO:$GITHUB_REF_NAME ./$GITHUB_REF_NAME
+          docker build -t $DOCKER_REPO:${GITHUB_REF_NAME} ./${GITHUB_REF_NAME}
 
       - name: 🛡️ Run OpenSCAP Scan
         run: |
-          docker run --privileged --name openscap-scan $DOCKER_REPO:$GITHUB_REF_NAME /openscap_scan.sh
+          docker run --privileged --name openscap-scan $DOCKER_REPO:${GITHUB_REF_NAME} /openscap_scan.sh
 
       - name: 📤 Extract Scan Report
         run: |
@@ -33,8 +36,8 @@ jobs:
 
       - name: 🔧 Run OpenSCAP Remediation
         run: |
-          docker commit openscap-scan $DOCKER_REPO:$GITHUB_REF_NAME-remediated
-          docker run --privileged --name openscap-remediate $DOCKER_REPO:$GITHUB_REF_NAME-remediated /openscap_remediate.sh
+          docker commit openscap-scan $DOCKER_REPO:${GITHUB_REF_NAME}-remediated
+          docker run --privileged --name openscap-remediate $DOCKER_REPO:${GITHUB_REF_NAME}-remediated /openscap_remediate.sh
 
       - name: 📤 Extract Remediation Report
         run: |
@@ -43,7 +46,7 @@ jobs:
       - name: 📊 Upload Compliance Reports as Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: openscap-reports-$GITHUB_REF_NAME
+          name: openscap-reports-${{ github.ref_name }}
           path: |
             oscap-results.html
             oscap-results.xml
@@ -82,12 +85,12 @@ jobs:
           rm -rf temp-compliance-reports
     
           # Ensure reports directory exists
-          mkdir -p reports/$GITHUB_REF_NAME
+          mkdir -p reports/${{ github.ref_name }}
     
           # Move new reports
-          mv oscap-results.html reports/$GITHUB_REF_NAME/oscap-results.html
-          mv oscap-results.xml reports/$GITHUB_REF_NAME/oscap-results.xml
-          mv oscap-results-remediated.html reports/$GITHUB_REF_NAME/oscap-results-remediated.html
+          mv oscap-results.html reports/${{ github.ref_name }}/oscap-results.html
+          mv oscap-results.xml reports/${{ github.ref_name }}/oscap-results.xml
+          mv oscap-results-remediated.html reports/${{ github.ref_name }}/oscap-results-remediated.html
 
           ls -l reports/*
     
@@ -96,7 +99,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit in compliance reports."
           else
-            git commit -m "Add OpenSCAP compliance reports for branch $GITHUB_REF_NAME"
+            git commit -m "Add OpenSCAP compliance reports for branch ${{ github.ref_name }}"
             git push -f origin compliance-reports
           fi
         env:
@@ -105,47 +108,5 @@ jobs:
       - name: 🚀 Push Remediated Docker Image
         run: |
           echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
-          docker tag $DOCKER_REPO:$GITHUB_REF_NAME-remediated $DOCKER_REPO:$GITHUB_REF_NAME
-          docker push $DOCKER_REPO:$GITHUB_REF_NAME
-
-  warewulf-docker-import:
-    runs-on: self-hosted
-    name: Import Docker image of a Slurm Node info WareWulf
-    needs: build-scan-remediate 
-
-    env:
-      DOCKER_REPO: ${{ env.CONTAINER_IMAGE }}
-      SHORT_COMMIT_ID: ${{ github.sha[:7] }}
-      GITHUB_REF_NAME: ${{ github.ref_name }}   
-    
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      - name: Set Environment Variables
-        run: |
-          IMAGE_NAME=$(echo "$DOCKER_REPO:$GITHUB_REF_NAME" | awk -F'/' '{print $2}' | awk -F':' '{print $1}')
-          if [ -z "$IMAGE_NAME" ]; then
-            IMAGE_NAME="slurm-node"
-          fi
-          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
-
-      - name: Pull Docker Image
-        run: |
-          echo "Pulling production container image..."
-          sudo docker pull $DOCKER_REPO:$GITHUB_REF_NAME
-
-      - name: Import Docker Image into Warewulf
-        run: |
-          echo "Importing slurm-node-prod container into Warewulf..."
-          sudo wwctl container import docker://$DOCKER_REPO:$GITHUB_REF_NAME $IMAGE_NAME-$GITHUB_REF_NAME-$SHORT_COMMIT_ID --force
-
-      - name: Import Kernel from Docker Image into Warewulf
-        run: |
-          echo "Importing Kernel from slurm-node-prod container into Warewulf..."
-          sudo wwctl kernel import -DC $IMAGE_NAME-$GITHUB_REF_NAME-$SHORT_COMMIT_ID
-
-      - name: Verify Import
-        run: |
-          echo "Verifying the imported container..."
-          sudo wwctl container list
+          docker tag $DOCKER_REPO:${GITHUB_REF_NAME}-remediated $DOCKER_REPO:${GITHUB_REF_NAME}
+          docker push $DOCKER_REPO:${GITHUB_REF_NAME}
