@@ -70,6 +70,17 @@ jobs:
             git checkout compliance-reports
             git pull origin compliance-reports || true
           fi
+
+          # Clone the compliance-reports branch into a temporary directory
+          git clone --branch compliance-reports --depth 1 https://github.com/${{ github.repository }} temp-compliance-reports || echo "Branch does not exist. Skipping clone."
+
+          # Copy the reports directory if it exists in the cloned branch
+          if [ -d temp-compliance-reports/reports ]; then
+            cp -r temp-compliance-reports/reports/* reports/
+          fi
+
+          # Clean up the temporary directory
+          rm -rf temp-compliance-reports
     
           # Ensure reports directory exists
           mkdir -p reports/${{ github.ref_name }}
