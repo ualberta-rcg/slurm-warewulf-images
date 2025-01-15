@@ -8,6 +8,7 @@ on:
 
 jobs:
   build-scan-remediate-push:
+    name: Build a Customized Docker Image of a Slurm Node, Apply CIS L2 Server Benchmarks, Push to Docker Repository
     runs-on: ubuntu-latest
 
     env:
