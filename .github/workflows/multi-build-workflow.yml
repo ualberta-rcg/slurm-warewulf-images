@@ -138,13 +138,13 @@ jobs:
 
       - name: Import Docker Image into Warewulf
         run: |
-          echo "Importing slurm-node-prod container into Warewulf..."
+          echo "Importing $IMAGE_NAME-$GITHUB_REF_NAME-$SHORT_COMMIT_ID into Warewulf..."
           sudo wwctl container import docker://$DOCKER_REPO:$GITHUB_REF_NAME $IMAGE_NAME-$GITHUB_REF_NAME-$SHORT_COMMIT_ID --force
 
       - name: Import Kernel from Docker Image into Warewulf
         run: |
-          echo "Importing Kernel from slurm-node-prod container into Warewulf..."
-          sudo wwctl kernel import -DC $IMAGE_NAME-$GITHUB_REF_NAME-$SHORT_COMMIT_ID
+          echo "Importing Kernel from $IMAGE_NAME-$GITHUB_REF_NAME-$SHORT_COMMIT_ID into Warewulf..."
+          sudo wwctl kernel import -DC $IMAGE_NAME-$GITHUB_REF_NAME-$SHORT_COMMIT_ID | true
 
       - name: Verify Import
         run: |
