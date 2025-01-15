@@ -29,7 +29,6 @@ RUN dnf update -y && \
     jq \
     kernel \
     kernel-devel \
-    redhat-lsb-core \
     sudo \
     python3 \
     python3-pip \
