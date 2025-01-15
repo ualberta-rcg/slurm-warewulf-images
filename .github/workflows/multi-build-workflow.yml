@@ -112,7 +112,7 @@ jobs:
   warewulf-docker-import:
     runs-on: self-hosted
     name: Import Docker image of a Slurm Node info WareWulf
-    needs: build-scan-remediate 
+    needs: build-scan-remediate-push 
 
     env:
       DOCKER_REPO: ${{ vars.CONTAINER_IMAGE }}
