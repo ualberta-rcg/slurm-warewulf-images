@@ -58,7 +58,7 @@ jobs:
           git config --global user.email "actions@github.com"
 
           # Clone the compliance-reports branch into a temporary directory
-          git clone --branch compliance-reports --depth 1 https://github.com/${{ github.repository }} temp-compliance-reports || echo "Branch does not exist. Skipping clone."
+          git clone --branch compliance-reports --depth 1 https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} temp-compliance-reports || echo "Branch does not exist. Skipping clone."
     
           # Fetch all branches
           git fetch origin
