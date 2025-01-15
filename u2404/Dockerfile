@@ -50,7 +50,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libxml2-dev \
     numactl \
     prometheus-node-exporter \
-    datacenter-gpu-manager \
+    #datacenter-gpu-manager \
     nfs-common \
     cockpit && \
     DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
