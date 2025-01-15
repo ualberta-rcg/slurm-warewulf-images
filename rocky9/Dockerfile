@@ -73,7 +73,7 @@ RUN systemctl enable cockpit.socket || true && \
     systemctl enable prometheus-node-exporter.service || true
 
 # Install Puppet Agent
-RUN dnf install -y https://yum.puppet.com/puppet-release-el-8.noarch.rpm && \
+RUN dnf install -y https://yum.puppet.com/puppet-release-el-9.noarch.rpm && \
     dnf install -y puppet-agent && \
     rm -f /etc/yum.repos.d/puppet*.repo
 
