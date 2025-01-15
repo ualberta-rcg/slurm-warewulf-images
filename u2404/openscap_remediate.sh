@@ -17,3 +17,8 @@ echo "✅ Remediation Complete. Report saved to /home/oscap-results-remediated.h
 
 rm -rf /usr/share/xml/scap/ssg/content
 
+# Clean Up APT Repo
+apt remove openscap -y 
+apt autoremove -y 
+apt clean 
+rm -rf /var/lib/apt/lists/* 
