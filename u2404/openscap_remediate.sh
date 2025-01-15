@@ -14,3 +14,6 @@ oscap xccdf eval \
     $SCAP_GUIDE
 
 echo "✅ Remediation Complete. Report saved to /home/oscap-results-remediated.html"
+
+rm -rf /usr/share/xml/scap/ssg/content
+
