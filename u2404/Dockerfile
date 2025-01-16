@@ -147,4 +147,4 @@ COPY openscap_remediate.sh /openscap_remediate.sh
 RUN chmod +x /openscap_scan.sh /openscap_remediate.sh
 #CMD ["/bin/bash"]
 
-CMD ["/lib/systemd/systemd"]
+CMD ["/sbin/init"]
