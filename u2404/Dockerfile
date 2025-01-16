@@ -78,6 +78,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     openscap-scanner \
     netbase \
     ipmitool \
+    tini \
     rdma-core
 
 # Lets Upgrade one more time
@@ -145,6 +146,7 @@ COPY openscap_remediate.sh /openscap_remediate.sh
 
 # Make scripts executable
 RUN chmod +x /openscap_scan.sh /openscap_remediate.sh
-#CMD ["/bin/bash"]
+
+ENTRYPOINT ["/usr/bin/tini", "--"] 
 
 CMD ["/sbin/init"]
