@@ -224,7 +224,7 @@ RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/c
     fi
 
 # Create Users
-RUN groupadd -g 1000 wwgroup && useradd -m -u 1000 -g slurm -s /bin/bash wwuser && \
+RUN groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser && \
     echo "wwuser:wwpassword" | chpasswd && \
     usermod -aG sudo wwuser && \
     groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
