@@ -235,7 +235,6 @@ RUN mkdir -p /var/spool/slurmctld /var/log/slurm/ /var/run/slurm /etc/slurm && \
     echo "wwuser:wwpassword" | chpasswd && \
     usermod -aG sudo wwuser && \
     chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin && \
-    chmod 644 /etc/slurm/* && \
     chown munge:munge -R /etc/munge
 
 # Clean Up
