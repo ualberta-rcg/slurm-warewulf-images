@@ -50,7 +50,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libxml2-dev \
     numactl \
     prometheus-node-exporter \
-    #datacenter-gpu-manager \
     nfs-common \
     cockpit && \
     DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
@@ -160,10 +159,6 @@ RUN cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/sl
     sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/system/slurm-job-exporter.service && \
     chmod 644 /etc/systemd/system/slurm-job-exporter.service 
 
-# Add runtime configurations, users and groups for Munge, Slurm, & Warewulf
-RUN groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
-    groupadd -g 1000 wwgroup && useradd -m -u 1000 -g wwgroup wwuser
-
 # Configure and build Slurm with the additional features enabled
 RUN mkdir -p /usr/src && cd /usr/src && \
     curl -LO https://github.com/SchedMD/slurm/archive/refs/tags/slurm-${SLURM_VERSION}.tar.gz && \
@@ -206,11 +201,16 @@ RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/c
         echo "❌ Failed to download SCAP Security Guide"; exit 1; \
     fi
 
-# Create a default user
-RUN useradd -m -s /bin/bash wwuser && \
+# Create Users
+RUN groupadd -g 1000 wwgroup && useradd -m -u 1000 -g slurm -s /bin/bash wwuser && \
     echo "wwuser:wwpassword" | chpasswd && \
-    usermod -aG sudo wwuser
-
+    usermod -aG sudo wwuser && \
+    groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
+    mkdir -p /var/spool/slurmctld /var/log/slurm/ /var/run/slurm && \
+    chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin && \
+    chmod 644 /etc/slurm/* && \
+    chown munge:munge -R /etc/munge
+    
 EXPOSE 22
 
 # Clean Up
