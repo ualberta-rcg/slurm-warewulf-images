@@ -90,16 +90,16 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libjson-c5 \
     libhttp-parser2.9 \
     libev4 \
-    libssl1.1 \
+    libssl3 \
     libcurl4 \
-    libbpf0 \
+    libbpf1 \
     libdbus-1-3 \
     libfreeipmi17 \
     libibumad3 \
     libibmad5 \
     libev-dev \
     gettext \
-    linux-headers-amd64 \
+    linux-headers-generic \
     pkg-config \
     autoconf \
     automake \
@@ -123,8 +123,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libjwt-dev \
     lua5.3 \
     mailutils \
-    liblua5.3-dev \
-    nvidia-driver-565 && \
+    liblua5.3-dev  && \
+    ubuntu-drivers install --gpgpu && \
     ln -sf /usr/bin/python3 /usr/local/bin/python3 && \
     ln -sf /usr/bin/pip3 /usr/local/bin/pip3 && \
     mkdir -p /var/run/munge /run/munge /var/lib/munge /var/log/munge /etc/munge && \
@@ -221,7 +221,7 @@ RUN apt-get purge -y \
     make \
     man-db \
     zlib1g-dev \
-    linux-headers-amd64 \
+    linux-headers-generic \
     pkg-config \
     autoconf \
     automake \
