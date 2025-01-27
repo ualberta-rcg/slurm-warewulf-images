@@ -140,24 +140,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     chmod 755 /run/munge && \
     apt list nvidia-driver-*
 
-# Lets Upgrade and install prerequisites
-RUN apt update && apt upgrade -y && \
-    mkdir -p /var/run/nvidia-persistenced && \
-    echo "nvidia" >> /etc/modules && \
-    echo "nvidia_uvm" >> /etc/modules
-
-# Install the NVIDIA driver from Ubuntu repositories
-RUN apt install -y --no-install-recommends \
-    nvidia-driver-${NVIDIA_DRIVER_VERSION} \
-    nvidia-settings \
-    nvidia-prime
-
-# Install NVIDIA utilities and libraries from Ubuntu repositories
-RUN apt install -y --no-install-recommends \
-    libnvidia-compute-${NVIDIA_DRIVER_VERSION} \
-    libnvidia-gl-${NVIDIA_DRIVER_VERSION} \
-    nvidia-modprobe
-
 # Install Slurm Job Exporter 
 RUN mkdir -p /opt/slurm-job-exporter && \
     chown -R root:root /opt/slurm-job-exporter && \
