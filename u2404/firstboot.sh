@@ -6,9 +6,29 @@ exec 1> >(logger -s -t $(basename $0)) 2>&1
 
 echo "Starting first boot configuration..."
 
+SLURM_VERSION=24-05-5-1
+PREFIX=/opt/software/slurm
+PATH=/usr/local/ssl/bin:$PREFIX/bin:/opt/software/slurm/sbin:${PATH:-}
+LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH:-}
+NVIDIA_DRIVER_VERSION=535
+NVIDIA_VISIBLE_DEVICES=all
+NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
 # Install CVMFS
 apt-get update
+apt-get upgrade
 apt-get install -y cvmfs cvmfs-fuse3
+apt update -y 
+apt upgrade -y 
+mkdir -p /var/run/nvidia-persistenced
+echo "nvidia" >> /etc/modules 
+echo "nvidia_uvm" >> /etc/modules
+
+# Install the NVIDIA driver from Ubuntu repositories
+apt-get install -y nvidia-driver-${NVIDIA_DRIVER_VERSION} nvidia-settings nvidia-prime
+
+# Install NVIDIA utilities and libraries from Ubuntu repositories
+RUN apt install -y libnvidia-compute-${NVIDIA_DRIVER_VERSION} libnvidia-gl-${NVIDIA_DRIVER_VERSION} nvidia-modprobe
 
 # NVIDIA setup
 nvidia-modprobe
