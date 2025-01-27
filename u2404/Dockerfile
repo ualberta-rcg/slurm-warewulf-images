@@ -137,7 +137,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
 
 RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
     dpkg -i cvmfs-release-latest_all.deb && rm -f cvmfs-release-latest_all.deb && \
-    apt-get -y update && apt-get -y install cvmfs
+    apt -y update && apt -y install cvmfs && \
+    dpkg --force-configure -a
 
 # Lets Upgrade and install prerequisites
 RUN apt update && apt upgrade -y && \
