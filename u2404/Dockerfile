@@ -3,6 +3,7 @@ FROM ubuntu:24.10
 
 # Environment settings
 ENV DEBIAN_FRONTEND=noninteractive
+ENV NVIDIA_DRIVER_VERSION=535
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
@@ -53,6 +54,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     nfs-common \
     cockpit && \
     DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
+    add-apt-repository ppa:graphics-drivers/ppa && apt-get update && \
     apt install -f -y \
     htop \
     iftop \
@@ -123,8 +125,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libjwt-dev \
     lua5.3 \
     mailutils \
-    liblua5.3-dev  && \
-    ubuntu-drivers install --gpgpu && \
+    liblua5.3-dev \
+    software-properties-common && \
     ln -sf /usr/bin/python3 /usr/local/bin/python3 && \
     ln -sf /usr/bin/pip3 /usr/local/bin/pip3 && \
     mkdir -p /var/run/munge /run/munge /var/lib/munge /var/log/munge /etc/munge && \
@@ -143,6 +145,24 @@ RUN apt update && apt upgrade -y && \
     echo "nvidia" >> /etc/modules && \
     echo "nvidia_uvm" >> /etc/modules && \
     mkdir /run/sshd && chmod 755 /run/sshd
+
+# Install the NVIDIA driver
+RUN apt-get install -y --no-install-recommends \
+    nvidia-driver-${NVIDIA_DRIVER_VERSION} \
+    nvidia-settings \
+    nvidia-prime 
+
+# Install NVIDIA utilities and libraries
+RUN apt-get install -y --no-install-recommends \
+    libnvidia-compute-${NVIDIA_DRIVER_VERSION} \
+    libnvidia-gl-${NVIDIA_DRIVER_VERSION} \
+    nvidia-modprobe
+
+# Precompile NVIDIA kernel modules
+RUN nvidia-modprobe && \
+    nvidia-smi && \
+    depmod -a && \
+    modprobe nvidia
 
 # Install Slurm Job Exporter 
 RUN mkdir -p /opt/slurm-job-exporter && \
@@ -240,6 +260,7 @@ RUN apt-get purge -y \
     libhwloc-dev \
     libnuma-dev \
     libcurl4-openssl-dev \
+    software-properties-common \
     libjwt-dev && \
     apt-get autoremove -y && \
     apt-get clean && \
