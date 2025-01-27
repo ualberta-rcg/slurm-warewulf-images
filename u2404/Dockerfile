@@ -54,7 +54,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     nfs-common \
     cockpit && \
     DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
-    add-apt-repository ppa:graphics-drivers/ppa && apt-get update && \
     apt install -f -y \
     htop \
     iftop \
@@ -133,26 +132,27 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     mkdir -p /var/log/slurm/ /etc/slurm && \
     chown -R munge:munge /etc/munge /var/run/munge /var/lib/munge /var/log/munge /run/munge && \
     chmod 700 /var/lib/munge /var/run/munge && \
-    chmod 755 /run/munge
+    chmod 755 /run/munge && \
+    apt list nvidia-driver-*
 
 RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
     dpkg -i cvmfs-release-latest_all.deb && rm -f cvmfs-release-latest_all.deb && \
     apt-get -y update && apt-get -y install cvmfs
 
-# Lets Upgrade one more time
+# Lets Upgrade and install prerequisites
 RUN apt update && apt upgrade -y && \
     mkdir -p /var/run/nvidia-persistenced && \
     echo "nvidia" >> /etc/modules && \
     echo "nvidia_uvm" >> /etc/modules && \
     mkdir /run/sshd && chmod 755 /run/sshd
 
-# Install the NVIDIA driver
+# Install the NVIDIA driver from Ubuntu repositories
 RUN apt-get install -y --no-install-recommends \
     nvidia-driver-${NVIDIA_DRIVER_VERSION} \
     nvidia-settings \
-    nvidia-prime 
+    nvidia-prime
 
-# Install NVIDIA utilities and libraries
+# Install NVIDIA utilities and libraries from Ubuntu repositories
 RUN apt-get install -y --no-install-recommends \
     libnvidia-compute-${NVIDIA_DRIVER_VERSION} \
     libnvidia-gl-${NVIDIA_DRIVER_VERSION} \
