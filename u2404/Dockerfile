@@ -125,6 +125,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     lua5.3 \
     mailutils \
     liblua5.3-dev \
+    zabbix-agent \
     software-properties-common && \
     ln -sf /usr/bin/python3 /usr/local/bin/python3 && \
     ln -sf /usr/bin/pip3 /usr/local/bin/pip3 && \
@@ -138,10 +139,11 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
 # Add CVMFS repository and install the package
 RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
     dpkg -i cvmfs-release-latest_all.deb && rm -f cvmfs-release-latest_all.deb && \
-    apt update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-configure \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
     cvmfs \
-    cvmfs-fuse3
+    cvmfs-fuse3 || true && \
+    dpkg --force-all -i /var/cache/apt/archives/cvmfs*.deb    
 
 # Lets Upgrade and install prerequisites
 RUN apt update && apt upgrade -y && \
