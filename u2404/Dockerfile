@@ -135,10 +135,13 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     chmod 755 /run/munge && \
     apt list nvidia-driver-*
 
+# Add CVMFS repository and install the package
 RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
     dpkg -i cvmfs-release-latest_all.deb && rm -f cvmfs-release-latest_all.deb && \
-    apt -y update && apt -y install cvmfs && \
-    dpkg --force-configure -a
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    cvmfs \
+    cvmfs-fuse3
 
 # Lets Upgrade and install prerequisites
 RUN apt update && apt upgrade -y && \
