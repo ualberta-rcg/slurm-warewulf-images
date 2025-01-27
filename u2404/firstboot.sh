@@ -8,6 +8,11 @@ echo "Starting first boot configuration..."
 
 SLURM_VERSION=24-05-5-1
 PREFIX=/opt/software/slurm
+PATH=/usr/local/ssl/bin:$PREFIX/bin:/opt/software/slurm/sbin:${PATH:-}
+LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH:-}
+NVIDIA_DRIVER_VERSION=535
+NVIDIA_VISIBLE_DEVICES=all
+NVIDIA_DRIVER_CAPABILITIES=compute,utility
 
 # Install CVMFS
 apt-get update
