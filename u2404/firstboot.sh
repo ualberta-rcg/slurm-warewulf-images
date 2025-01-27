@@ -6,6 +6,9 @@ exec 1> >(logger -s -t $(basename $0)) 2>&1
 
 echo "Starting first boot configuration..."
 
+SLURM_VERSION=24-05-5-1
+PREFIX=/opt/software/slurm
+
 # Install CVMFS
 apt-get update
 apt-get upgrade
