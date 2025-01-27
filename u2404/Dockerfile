@@ -132,7 +132,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     mkdir -p /var/log/slurm/ /etc/slurm && \
     chown -R munge:munge /etc/munge /var/run/munge /var/lib/munge /var/log/munge /run/munge && \
     chmod 700 /var/lib/munge /var/run/munge && \
-    chmod 755 /run/munge
+    chmod 755 /run/munge && \
+    apt list nvidia-driver-*
 
 RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
     dpkg -i cvmfs-release-latest_all.deb && rm -f cvmfs-release-latest_all.deb && \
