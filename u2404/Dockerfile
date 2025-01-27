@@ -223,20 +223,20 @@ RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/c
         echo "❌ Failed to download SCAP Security Guide"; exit 1; \
     fi
 
-# Create Users
-RUN groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
-    groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser && \
-    echo "wwuser:wwpassword" | chpasswd && \
-    usermod -aG sudo wwuser && \
-    mkdir -p /var/spool/slurmctld /var/log/slurm/ /var/run/slurm && \
-    chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin && \
-    chmod 644 /etc/slurm/* && \
-    chown munge:munge -R /etc/munge
-
 # Add CVMFS repository and install the package
 RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
     dpkg --force-all -i cvmfs-release-latest_all.deb && \
     rm -f cvmfs-release-latest_all.deb
+
+# Create Users
+RUN mkdir -p /var/spool/slurmctld /var/log/slurm/ /var/run/slurm /etc/slurm && \
+    groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
+    groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser && \
+    echo "wwuser:wwpassword" | chpasswd && \
+    usermod -aG sudo wwuser && \
+    chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin && \
+    chmod 644 /etc/slurm/* && \
+    chown munge:munge -R /etc/munge
 
 # Clean Up
 RUN apt-get purge -y \
