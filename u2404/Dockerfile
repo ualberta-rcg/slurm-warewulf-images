@@ -140,8 +140,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
 RUN apt update && apt upgrade -y && \
     mkdir -p /var/run/nvidia-persistenced && \
     echo "nvidia" >> /etc/modules && \
-    echo "nvidia_uvm" >> /etc/modules && \
-    mkdir /run/sshd && chmod 755 /run/sshd
+    echo "nvidia_uvm" >> /etc/modules
 
 # Install the NVIDIA driver from Ubuntu repositories
 RUN apt install -y --no-install-recommends \
