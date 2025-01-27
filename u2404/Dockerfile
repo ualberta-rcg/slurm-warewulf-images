@@ -1,7 +1,11 @@
 #FROM nvidia/cuda:12.6.3-base-ubuntu24.04
 FROM ubuntu:24.10
 
-# Environment settings
+# Set Environment Variables
+ENV SLURM_VERSION=24-05-5-1
+ENV PREFIX=/opt/software/slurm
+ENV PATH=/usr/local/ssl/bin:$PREFIX/bin:/opt/software/slurm/sbin:${PATH:-}
+ENV LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH:-}
 ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_DRIVER_VERSION=535
 ENV NVIDIA_VISIBLE_DEVICES=all

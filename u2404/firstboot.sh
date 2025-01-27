@@ -16,7 +16,8 @@ nvidia-smi
 depmod -a
 modprobe nvidia
 
-# Add any other node setup here
+# Zabbix Setup
+sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
 
 # Disable and cleanup
 systemctl disable firstboot.service
