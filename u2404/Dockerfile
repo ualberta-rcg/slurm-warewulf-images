@@ -136,15 +136,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     chmod 755 /run/munge && \
     apt list nvidia-driver-*
 
-# Add CVMFS repository and install the package
-RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
-    dpkg -i cvmfs-release-latest_all.deb && rm -f cvmfs-release-latest_all.deb && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    cvmfs \
-    cvmfs-fuse3 || true && \
-    dpkg --force-all -i /var/cache/apt/archives/cvmfs*.deb    
-
 # Lets Upgrade and install prerequisites
 RUN apt update && apt upgrade -y && \
     mkdir -p /var/run/nvidia-persistenced && \
@@ -236,8 +227,11 @@ RUN groupadd -g 1000 wwgroup && useradd -m -u 1000 -g slurm -s /bin/bash wwuser 
     chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin && \
     chmod 644 /etc/slurm/* && \
     chown munge:munge -R /etc/munge
-    
-EXPOSE 22
+
+# Add CVMFS repository and install the package
+RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
+    dpkg --force-all -i cvmfs-release-latest_all.deb && \
+    rm -f cvmfs-release-latest_all.deb
 
 # Clean Up
 RUN apt-get purge -y \
