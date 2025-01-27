@@ -154,12 +154,6 @@ RUN apt install -y --no-install-recommends \
     libnvidia-gl-${NVIDIA_DRIVER_VERSION} \
     nvidia-modprobe
 
-# Precompile NVIDIA kernel modules
-RUN nvidia-modprobe && \
-    nvidia-smi && \
-    depmod -a && \
-    modprobe nvidia
-
 # Install Slurm Job Exporter 
 RUN mkdir -p /opt/slurm-job-exporter && \
     chown -R root:root /opt/slurm-job-exporter && \
@@ -196,12 +190,20 @@ RUN mkdir -p /usr/src && cd /usr/src && \
     touch /var/log/slurm/slurm-dbd.log && \
     touch /var/log/slurm/slurmctld.log
 
+# Copy the firstboot files
+COPY firstboot.service /etc/systemd/system/
+COPY firstboot.sh /usr/local/sbin/
+
+# Make the script executable and enable the service
+RUN chmod +x /usr/local/sbin/firstboot.sh
+
 # Enable Services Manually Without systemctl
 RUN mkdir -p /etc/systemd/system/multi-user.target.wants && \
     ln -s /lib/systemd/system/cockpit.socket /etc/systemd/system/multi-user.target.wants/cockpit.socket || true && \
     ln -s /lib/systemd/system/nvidia-dcgm.service /etc/systemd/system/multi-user.target.wants/nvidia-dcgm.service || true && \
     ln -s /lib/systemd/system/prometheus-node-exporter.service /etc/systemd/system/multi-user.target.wants/prometheus-node-exporter.service || true && \
-    ln -s /etc/systemd/system/slurm-job-exporter.service /etc/systemd/system/multi-user.target.wants/slurm-job-exporter.service || true
+    ln -s /etc/systemd/system/slurm-job-exporter.service /etc/systemd/system/multi-user.target.wants/slurm-job-exporter.service || true && \
+    ln -s /etc/systemd/system/firstboot.service /etc/systemd/system/multi-user.target.wants/firstboot.service || true
 
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
