@@ -1,5 +1,5 @@
-FROM nvidia/cuda:12.6.3-base-ubuntu24.04
-#FROM nvidia/cuda:12.6.3-runtime-ubuntu24.04
+#FROM nvidia/cuda:12.6.3-base-ubuntu24.04
+FROM ubuntu:24.10
 
 # Environment settings
 ENV DEBIAN_FRONTEND=noninteractive
@@ -50,7 +50,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libxml2-dev \
     numactl \
     prometheus-node-exporter \
-    #datacenter-gpu-manager \
     nfs-common \
     cockpit && \
     DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
@@ -73,13 +72,70 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     systemd-sysv \
     dbus \
     pciutils \
-    ethtool\
     ifupdown \
     openscap-scanner \
     netbase \
     ipmitool \
-    tini \
-    rdma-core
+    rdma-core \
+    build-essential \
+    cmake \
+    libhwloc15 \
+    libtool \
+    zlib1g-dev \
+    liblua5.3-0 \
+    libnuma1 \
+    libpam0g \
+    librrd8 \
+    libyaml-0-2 \
+    libjson-c5 \
+    libhttp-parser2.9 \
+    libev4 \
+    libssl1.1 \
+    libcurl4 \
+    libbpf0 \
+    libdbus-1-3 \
+    libfreeipmi17 \
+    libibumad3 \
+    libibmad5 \
+    libev-dev \
+    gettext \
+    linux-headers-amd64 \
+    pkg-config \
+    autoconf \
+    automake \
+    gcc \
+    make \
+    python3 \
+    python3-pip \
+    python3-venv \
+    python3-dev \
+    munge \
+    libmunge-dev \
+    libmunge2 \
+    libpmix-bin \
+    rrdtool \
+    librrd-dev \
+    libhdf5-dev \
+    libmariadb-dev \
+    libjson-c-dev \
+    libyaml-dev \
+    libpam0g-dev \
+    libjwt-dev \
+    lua5.3 \
+    mailutils \
+    liblua5.3-dev \
+    nvidia-driver-565 && \
+    ln -sf /usr/bin/python3 /usr/local/bin/python3 && \
+    ln -sf /usr/bin/pip3 /usr/local/bin/pip3 && \
+    mkdir -p /var/run/munge /run/munge /var/lib/munge /var/log/munge /etc/munge && \
+    mkdir -p /var/log/slurm/ /etc/slurm && \
+    chown -R munge:munge /etc/munge /var/run/munge /var/lib/munge /var/log/munge /run/munge && \
+    chmod 700 /var/lib/munge /var/run/munge && \
+    chmod 755 /run/munge
+
+RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
+    dpkg -i cvmfs-release-latest_all.deb && rm -f cvmfs-release-latest_all.deb && \
+    apt-get -y update && apt-get -y install cvmfs
 
 # Lets Upgrade one more time
 RUN apt update && apt upgrade -y && \
@@ -87,12 +143,6 @@ RUN apt update && apt upgrade -y && \
     echo "nvidia" >> /etc/modules && \
     echo "nvidia_uvm" >> /etc/modules && \
     mkdir /run/sshd && chmod 755 /run/sshd
-
-# Install Puppet Agent
-RUN wget https://apt.puppetlabs.com/puppet-release-focal.deb && \
-    dpkg -i puppet-release-focal.deb && \
-    apt update && apt install -y puppet-agent && \
-    rm -f puppet-release-focal.deb
 
 # Install Slurm Job Exporter 
 RUN mkdir -p /opt/slurm-job-exporter && \
@@ -108,6 +158,27 @@ RUN mkdir -p /opt/slurm-job-exporter && \
 RUN cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/slurm-job-exporter.service && \
     sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/system/slurm-job-exporter.service && \
     chmod 644 /etc/systemd/system/slurm-job-exporter.service 
+
+# Configure and build Slurm with the additional features enabled
+RUN mkdir -p /usr/src && cd /usr/src && \
+    curl -LO https://github.com/SchedMD/slurm/archive/refs/tags/slurm-${SLURM_VERSION}.tar.gz && \
+    tar -xzf slurm-${SLURM_VERSION}.tar.gz && cd slurm-slurm-${SLURM_VERSION} && \
+    ./configure --prefix=$PREFIX \
+                --sysconfdir=/etc/slurm \
+                --with-munge \
+                --with-pmix \
+                --with-hdf5 \
+                --with-mysql \
+                --enable-debug \
+                --enable-pam \
+                --enable-restd \
+                --enable-lua \
+                --enable-rrdtool \
+                --enable-mpi && \
+    make -j$(nproc) && make install && \
+    cd contribs && make && make install && \
+    touch /var/log/slurm/slurm-dbd.log && \
+    touch /var/log/slurm/slurmctld.log
 
 # Enable Services Manually Without systemctl
 RUN mkdir -p /etc/systemd/system/multi-user.target.wants && \
@@ -130,15 +201,51 @@ RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/c
         echo "❌ Failed to download SCAP Security Guide"; exit 1; \
     fi
 
-# Create a default user
-RUN useradd -m -s /bin/bash wwuser && \
+# Create Users
+RUN groupadd -g 1000 wwgroup && useradd -m -u 1000 -g slurm -s /bin/bash wwuser && \
     echo "wwuser:wwpassword" | chpasswd && \
-    usermod -aG sudo wwuser
-
+    usermod -aG sudo wwuser && \
+    groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
+    mkdir -p /var/spool/slurmctld /var/log/slurm/ /var/run/slurm && \
+    chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin && \
+    chmod 644 /etc/slurm/* && \
+    chown munge:munge -R /etc/munge
+    
 EXPOSE 22
 
-# Clean Up APT Repo
-RUN apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* && rm /usr/sbin/policy-rc.d
+# Clean Up
+RUN apt-get purge -y \
+    build-essential \
+    cmake \
+    gcc \
+    make \
+    man-db \
+    zlib1g-dev \
+    linux-headers-amd64 \
+    pkg-config \
+    autoconf \
+    automake \
+    libssl-dev \
+    libev-dev \
+    libevent-dev \
+    libtool \
+    libyaml-dev \
+    libpam0g-dev \
+    liblua5.3-dev \
+    libmunge-dev \
+    libhdf5-dev \
+    libmariadb-dev \
+    librrd-dev \
+    libjson-c-dev \
+    libhwloc-dev \
+    libnuma-dev \
+    libcurl4-openssl-dev \
+    libjwt-dev && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
+    /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \
+    /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d
 
 # Add OpenSCAP Scripts
 COPY openscap_scan.sh /openscap_scan.sh
@@ -146,7 +253,5 @@ COPY openscap_remediate.sh /openscap_remediate.sh
 
 # Make scripts executable
 RUN chmod +x /openscap_scan.sh /openscap_remediate.sh
-
-ENTRYPOINT ["/usr/bin/tini", "--"] 
 
 CMD ["/sbin/init"]
