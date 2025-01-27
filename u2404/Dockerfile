@@ -138,8 +138,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
 # Add CVMFS repository and install the package
 RUN wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
     dpkg -i cvmfs-release-latest_all.deb && rm -f cvmfs-release-latest_all.deb && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    apt update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-configure \
     cvmfs \
     cvmfs-fuse3
 
@@ -151,13 +151,13 @@ RUN apt update && apt upgrade -y && \
     mkdir /run/sshd && chmod 755 /run/sshd
 
 # Install the NVIDIA driver from Ubuntu repositories
-RUN apt-get install -y --no-install-recommends \
+RUN apt install -y --no-install-recommends \
     nvidia-driver-${NVIDIA_DRIVER_VERSION} \
     nvidia-settings \
     nvidia-prime
 
 # Install NVIDIA utilities and libraries from Ubuntu repositories
-RUN apt-get install -y --no-install-recommends \
+RUN apt install -y --no-install-recommends \
     libnvidia-compute-${NVIDIA_DRIVER_VERSION} \
     libnvidia-gl-${NVIDIA_DRIVER_VERSION} \
     nvidia-modprobe
