@@ -224,10 +224,10 @@ RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/c
     fi
 
 # Create Users
-RUN groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser && \
+RUN groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
+    groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser && \
     echo "wwuser:wwpassword" | chpasswd && \
     usermod -aG sudo wwuser && \
-    groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
     mkdir -p /var/spool/slurmctld /var/log/slurm/ /var/run/slurm && \
     chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin && \
     chmod 644 /etc/slurm/* && \
