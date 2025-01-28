@@ -95,14 +95,6 @@ COPY firstboot.sh /usr/local/sbin/
 # Make the script executable and enable the service
 RUN chmod +x /usr/local/sbin/firstboot.sh
 
-# Enable Services Manually Without systemctl
-RUN mkdir -p /etc/systemd/system/multi-user.target.wants && \
-    ln -s /lib/systemd/system/cockpit.socket /etc/systemd/system/multi-user.target.wants/cockpit.socket || true && \
-    ln -s /lib/systemd/system/nvidia-dcgm.service /etc/systemd/system/multi-user.target.wants/nvidia-dcgm.service || true && \
-    ln -s /lib/systemd/system/prometheus-node-exporter.service /etc/systemd/system/multi-user.target.wants/prometheus-node-exporter.service || true && \
-    ln -s /etc/systemd/system/slurm-job-exporter.service /etc/systemd/system/multi-user.target.wants/slurm-job-exporter.service || true && \
-    ln -s /etc/systemd/system/firstboot.service /etc/systemd/system/multi-user.target.wants/firstboot.service || true
-
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
     echo "🔄 Using SCAP Security Guide version: $SSG_VERSION" && \
@@ -117,6 +109,14 @@ RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/c
         echo "❌ Failed to download SCAP Security Guide"; exit 1; \
     fi
 
+echo "nvidia" >> /etc/modules 
+echo "nvidia_uvm" >> /etc/modules
+
+# Install the NVIDIA driver from Ubuntu repositories
+apt-get install -y nvidia-driver-${NVIDIA_DRIVER_VERSION} nvidia-settings nvidia-prime
+
+# Install NVIDIA utilities and libraries from Ubuntu repositories
+apt-get install -y libnvidia-compute-${NVIDIA_DRIVER_VERSION} libnvidia-gl-${NVIDIA_DRIVER_VERSION} nvidia-modprobe
 
 # Add OpenSCAP Scripts
 COPY openscap_scan.sh /openscap_scan.sh
