@@ -21,6 +21,7 @@ nvidia-smi
 depmod -a
 modprobe nvidia
 
+
 # Install CVMFS
 wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb
 dpkg --force-all -i cvmfs-release-latest_all.deb 
