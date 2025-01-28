@@ -7,10 +7,13 @@ ENV PREFIX=/opt/software/slurm
 ENV PATH=/usr/local/ssl/bin:$PREFIX/bin:/opt/software/slurm/sbin:${PATH:-}
 ENV LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH:-}
 ENV DEBIAN_FRONTEND=noninteractive
-ENV NVIDIA_DRIVER_VERSION=535
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV KERNEL_VERSION=6.11.0-14-generic
+
+RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
+    echo "Using NVIDIA driver version: $NVIDIA_DRIVER_VERSION" && \
+    wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run
 
 # Temporarily disable service configuration
 RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
@@ -76,14 +79,13 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     libpmix-bin \
     rrdtool \
     lua5.3 \
-    linux-headers-${KERNEL_VERSION} \
     build-essential \
     dkms \
-    libglvnd-dev
+    libglvnd-dev\ 
+    linux-headers-${KERNEL_VERSION} \
+    linux-image-${KERNEL_VERSION} \
+    linux-modules-${KERNEL_VERSION}
 
-# Download NVIDIA driver directly from NVIDIA's website
-RUN wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
-    chmod +x /tmp/NVIDIA.run
 
 # Install the NVIDIA driver silently, without building kernel modules
 RUN /tmp/NVIDIA.run --silent --no-kernel-module && \
@@ -100,15 +102,16 @@ RUN update-initramfs -u -k ${KERNEL_VERSION}
 # Cleanup
 RUN apt-get autoremove -y && apt-get clean
 
-# Set NVIDIA libraries in the environment
-ENV NVIDIA_VISIBLE_DEVICES=all
-ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
-
-# Make the script executable and enable the service
 RUN chmod +x /usr/local/sbin/firstboot.sh
+
+RUN ls /lib/modules/${KERNEL_VERSION}/kernel/drivers/video/ && \
+    depmod -a ${KERNEL_VERSION} && \
+    update-initramfs -u -k ${KERNEL_VERSION}
+
+RUN echo "nvidia" >> /etc/modules && echo "nvidia_uvm" >> /etc/modules
 
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
