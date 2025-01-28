@@ -11,10 +11,6 @@ ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ENV KERNEL_VERSION=6.11.0-14-generic
 
-RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
-    echo "Using NVIDIA driver version: $NVIDIA_DRIVER_VERSION" && \
-    wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run
-
 # Temporarily disable service configuration
 RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
 
@@ -86,7 +82,10 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     linux-image-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION}
 
-
+RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
+    echo "Using NVIDIA driver version: $NVIDIA_DRIVER_VERSION" && \
+    wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run
+    
 # Install the NVIDIA driver silently, without building kernel modules
 RUN /tmp/NVIDIA.run --silent --no-kernel-module && \
     rm /tmp/NVIDIA.run
