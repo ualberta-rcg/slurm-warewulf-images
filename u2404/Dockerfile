@@ -132,8 +132,8 @@ EOF
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
 
-# Cleanup
-RUN apt-get autoremove -y && apt-get clean
+# Clean Up APT Repo
+RUN apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* && rm /usr/sbin/policy-rc.d
 
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
@@ -160,4 +160,3 @@ COPY openscap_remediate.sh /openscap_remediate.sh
 
 # Make scripts executable
 RUN chmod +x /openscap_scan.sh /openscap_remediate.sh
-
