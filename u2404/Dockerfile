@@ -97,20 +97,17 @@ RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Lin
     mkdir -p /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
     cp -r kernel/* /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
     # Create dkms.conf
-    cat > /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf << EOF
-PACKAGE_NAME="nvidia"
-PACKAGE_VERSION="${NVIDIA_DRIVER_VERSION}"
-BUILT_MODULE_NAME[0]="nvidia"
-DEST_MODULE_LOCATION[0]="/kernel/drivers/video"
-BUILT_MODULE_NAME[1]="nvidia-uvm"
-DEST_MODULE_LOCATION[1]="/kernel/drivers/video"
-BUILT_MODULE_NAME[2]="nvidia-modeset"
-DEST_MODULE_LOCATION[2]="/kernel/drivers/video"
-BUILT_MODULE_NAME[3]="nvidia-drm"
-DEST_MODULE_LOCATION[3]="/kernel/drivers/video"
-AUTOINSTALL="yes"
-EOF
-    && \
+    echo "PACKAGE_NAME=\"nvidia\"" > /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "PACKAGE_VERSION=\"${NVIDIA_DRIVER_VERSION}\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "BUILT_MODULE_NAME[0]=\"nvidia\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "DEST_MODULE_LOCATION[0]=\"/kernel/drivers/video\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "BUILT_MODULE_NAME[1]=\"nvidia-uvm\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "DEST_MODULE_LOCATION[1]=\"/kernel/drivers/video\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "BUILT_MODULE_NAME[2]=\"nvidia-modeset\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "DEST_MODULE_LOCATION[2]=\"/kernel/drivers/video\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "BUILT_MODULE_NAME[3]=\"nvidia-drm\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "DEST_MODULE_LOCATION[3]=\"/kernel/drivers/video\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
+    echo "AUTOINSTALL=\"yes\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf && \
     # Install the driver without kernel modules
     ./nvidia-installer --no-systemd \
                       --no-kernel-module \
