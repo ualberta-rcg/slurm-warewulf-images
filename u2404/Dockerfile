@@ -10,6 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_DRIVER_VERSION=535
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+ENV KERNEL_VERSION=6.11.0-14-generic
 
 # Temporarily disable service configuration
 RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
@@ -39,15 +40,12 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     sysstat \
     lsof \ 
     iputils-ping \
-    dnsutils \
-    traceroute \
     apt-utils \
     systemd-sysv \
     dbus \
     pciutils \
     openscap-scanner \
     netbase \
-    build-essential \
     cmake \
     libhwloc15 \
     libtool \
@@ -67,7 +65,6 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     libfreeipmi17 \
     libibumad3 \
     libibmad5 \
-    libev-dev \
     gettext \
     linux-headers-generic \
     pkg-config \
@@ -75,19 +72,37 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     automake \
     gcc \
     make \
-    libmunge-dev \
     libmunge2 \
     libpmix-bin \
     rrdtool \
-    librrd-dev \
-    libhdf5-dev \
-    libmariadb-dev \
-    libjson-c-dev \
-    libyaml-dev \
-    libpam0g-dev \
-    libjwt-dev \
     lua5.3 \
+    linux-headers-${KERNEL_VERSION} \
+    build-essential \
+    dkms \
+    libglvnd-dev
 
+# Download NVIDIA driver directly from NVIDIA's website
+RUN wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
+    chmod +x /tmp/NVIDIA.run
+
+# Install the NVIDIA driver silently, without building kernel modules
+RUN /tmp/NVIDIA.run --silent --no-kernel-module && \
+    rm /tmp/NVIDIA.run
+
+# Ensure DKMS builds NVIDIA kernel modules during runtime
+RUN dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
+    dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
+    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION}
+
+# Optional: Persist the kernel modules into the initramfs
+RUN update-initramfs -u -k ${KERNEL_VERSION}
+
+# Cleanup
+RUN apt-get autoremove -y && apt-get clean
+
+# Set NVIDIA libraries in the environment
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
@@ -108,15 +123,6 @@ RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/c
     else \
         echo "❌ Failed to download SCAP Security Guide"; exit 1; \
     fi
-
-echo "nvidia" >> /etc/modules 
-echo "nvidia_uvm" >> /etc/modules
-
-# Install the NVIDIA driver from Ubuntu repositories
-apt-get install -y nvidia-driver-${NVIDIA_DRIVER_VERSION} nvidia-settings nvidia-prime
-
-# Install NVIDIA utilities and libraries from Ubuntu repositories
-apt-get install -y libnvidia-compute-${NVIDIA_DRIVER_VERSION} libnvidia-gl-${NVIDIA_DRIVER_VERSION} nvidia-modprobe
 
 # Add OpenSCAP Scripts
 COPY openscap_scan.sh /openscap_scan.sh
