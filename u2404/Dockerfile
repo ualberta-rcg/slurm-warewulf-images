@@ -2,8 +2,6 @@
 FROM ubuntu:24.10
 
 # Set Environment Variables
-ENV SLURM_VERSION=24-05-5-1
-ENV PREFIX=/opt/software/slurm
 ENV PATH=/usr/local/ssl/bin:$PREFIX/bin:/opt/software/slurm/sbin:${PATH:-}
 ENV LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH:-}
 ENV DEBIAN_FRONTEND=noninteractive
@@ -77,44 +75,70 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     build-essential \
     dkms \
     libglvnd-dev\ 
+    pkg-config \
+    xorg-dev \
+    libx11-dev \
+    libxext-dev \
     linux-headers-generic \
     linux-headers-${KERNEL_VERSION} \
     linux-image-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION} && \
     ln -s /usr/src/linux-headers-${KERNEL_VERSION} /lib/modules/${KERNEL_VERSION}/build
 
+# Combine NVIDIA driver download, installation, and DKMS setup
 RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
     echo "Using NVIDIA driver version: $NVIDIA_DRIVER_VERSION" && \
     wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
-    chmod +x /tmp/NVIDIA.run
-    
-# Install the NVIDIA driver silently, without building kernel modules
-RUN /tmp/NVIDIA.run --no-systemd --kernel-source-path=/lib/modules/${KERNEL_VERSION}/build  --silent --no-kernel-module && \
-    rm /tmp/NVIDIA.run
-
-# Ensure DKMS builds NVIDIA kernel modules during runtime
-RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
-    echo "Using NVIDIA driver version: $NVIDIA_DRIVER_VERSION" && \
+    chmod +x /tmp/NVIDIA.run && \
+    # Extract the NVIDIA driver sources
+    sh /tmp/NVIDIA.run -x -s --no-kernel-module && \
+    cd NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION} && \
+    # Create DKMS source directory
+    mkdir -p /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
+    cp -r kernel/* /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
+    # Create dkms.conf
+    cat > /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf << EOF
+PACKAGE_NAME="nvidia"
+PACKAGE_VERSION="${NVIDIA_DRIVER_VERSION}"
+BUILT_MODULE_NAME[0]="nvidia"
+DEST_MODULE_LOCATION[0]="/kernel/drivers/video"
+BUILT_MODULE_NAME[1]="nvidia-uvm"
+DEST_MODULE_LOCATION[1]="/kernel/drivers/video"
+BUILT_MODULE_NAME[2]="nvidia-modeset"
+DEST_MODULE_LOCATION[2]="/kernel/drivers/video"
+BUILT_MODULE_NAME[3]="nvidia-drm"
+DEST_MODULE_LOCATION[3]="/kernel/drivers/video"
+AUTOINSTALL="yes"
+EOF
+    && \
+    # Install the driver without kernel modules
+    ./nvidia-installer --no-systemd \
+                      --no-kernel-module \
+                      --silent \
+                      --x-prefix=/usr \
+                      --x-module-path=/usr/lib/xorg/modules \
+                      --x-library-path=/usr/lib \
+                      --kernel-source-path=/lib/modules/${KERNEL_VERSION}/build && \
+    # DKMS steps
     dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
     dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
-    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION}
+    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
+    # Cleanup
+    cd .. && \
+    rm -rf NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION} && \
+    rm /tmp/NVIDIA.run && \
+    echo "nvidia" >> /etc/modules && echo "nvidia_uvm" >> /etc/modules
 
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
 
-# Cleanup
-RUN apt-get autoremove -y && apt-get clean
+# Clean Up APT Repo
+RUN apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* && rm /usr/sbin/policy-rc.d
 
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
 RUN chmod +x /usr/local/sbin/firstboot.sh
-
-RUN ls /lib/modules/${KERNEL_VERSION}/kernel/drivers/video/ && \
-    depmod -a ${KERNEL_VERSION} && \
-    update-initramfs -u -k ${KERNEL_VERSION}
-
-RUN echo "nvidia" >> /etc/modules && echo "nvidia_uvm" >> /etc/modules
 
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
@@ -136,4 +160,3 @@ COPY openscap_remediate.sh /openscap_remediate.sh
 
 # Make scripts executable
 RUN chmod +x /openscap_scan.sh /openscap_remediate.sh
-
