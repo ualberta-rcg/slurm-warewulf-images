@@ -82,13 +82,17 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     linux-image-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION}
 
+RUN apt-get purge linux-headers-* && \
+    apt-get install linux-headers-$(uname -r) linux-headers-generic build-essential && \
+    ln -s /usr/src/linux-headers-$(uname -r) /lib/modules/$(uname -r)/build
+
 RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
     echo "Using NVIDIA driver version: $NVIDIA_DRIVER_VERSION" && \
     wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
     chmod +x /tmp/NVIDIA.run
     
 # Install the NVIDIA driver silently, without building kernel modules
-RUN /tmp/NVIDIA.run --silent --no-kernel-module && \
+RUN /tmp/NVIDIA.run --no-systemd --kernel-source-path=/lib/modules/$(uname -r)/build  --silent --no-kernel-module && \
     rm /tmp/NVIDIA.run
 
 # Ensure DKMS builds NVIDIA kernel modules during runtime
