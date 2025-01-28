@@ -15,16 +15,6 @@ NVIDIA_VISIBLE_DEVICES=all
 NVIDIA_DRIVER_CAPABILITIES=compute,utility
 DEBIAN_FRONTEND=noninteractive
 
-mkdir -p /var/run/nvidia-persistenced
-echo "nvidia" >> /etc/modules 
-echo "nvidia_uvm" >> /etc/modules
-
-# Install the NVIDIA driver from Ubuntu repositories
-apt-get install -y nvidia-driver-${NVIDIA_DRIVER_VERSION} nvidia-settings nvidia-prime
-
-# Install NVIDIA utilities and libraries from Ubuntu repositories
-apt-get install -y libnvidia-compute-${NVIDIA_DRIVER_VERSION} libnvidia-gl-${NVIDIA_DRIVER_VERSION} nvidia-modprobe
-
 # NVIDIA setup
 nvidia-modprobe
 nvidia-smi
@@ -201,6 +191,23 @@ make install
 touch /var/log/slurm/slurm-dbd.log
 touch /var/log/slurm/slurmctld.log
 chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin 
+
+# Clean Up
+apt-get purge -y --autoremove \
+    build-essential \
+    cmake \
+    gcc \
+    make \
+    man-db \
+    zlib1g-dev \
+    linux-headers-generic \
+    pkg-config \
+    autoconf \
+    automake \
+    libcurl4-openssl-dev
+
+apt-get clean -y 
+rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/* /usr/share/doc /usr/share/man /usr/share/locale /usr/share/info 
 
 # Zabbix Setup
 sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
