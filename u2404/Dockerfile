@@ -86,6 +86,8 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     ln -s /usr/src/linux-headers-${KERNEL_VERSION} /lib/modules/${KERNEL_VERSION}/build
 
 RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
+    # Create the directory for the NVIDIA driver version
+    mkdir -p /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
     # Create dkms.conf
     echo "PACKAGE_NAME=\"nvidia\"" > /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
     echo "PACKAGE_VERSION=\"${NVIDIA_DRIVER_VERSION}\"" >> /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf  && \
