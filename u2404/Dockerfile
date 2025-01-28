@@ -122,12 +122,11 @@ RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Lin
                       --x-library-path=/usr/lib \
                       --kernel-source-path=/lib/modules/${KERNEL_VERSION}/build
                       
-RUN  NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \               
-    # DKMS steps
+RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
+    NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
     dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
-    dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
-    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
-    # Cleanup
+    dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} && \
+    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} && \
     cd .. && \
     rm -rf NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION} && \
     rm /tmp/NVIDIA.run && \
