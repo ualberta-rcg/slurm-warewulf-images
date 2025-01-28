@@ -15,7 +15,7 @@ ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
 
 # Install System Dependencies and Upgrade
-RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
+RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
     # Core Utilities
     wget \
     curl \
@@ -40,9 +40,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     linux-image-generic \
     systemd \
     sudo \
-    python3 \
-    python3-pip \
-    python3-venv \
     libssl-dev \
     libcurl4-openssl-dev \
     libhwloc-dev \
@@ -56,9 +53,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     numactl \
     prometheus-node-exporter \
     nfs-common \
-    cockpit && \
-    DEBIAN_FRONTEND=noninteractive dpkg --configure -a && \
-    apt install -f -y \
+    cockpit \
     htop \
     iftop \
     iotop \
@@ -113,7 +108,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     python3 \
     python3-pip \
     python3-venv \
-    python3-dev \
+    #python3-dev \
     munge \
     libmunge-dev \
     libmunge2 \
@@ -127,18 +122,15 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive 
     libpam0g-dev \
     libjwt-dev \
     lua5.3 \
-    mailutils \
     liblua5.3-dev \
-    zabbix-agent \
-    software-properties-common && \
+    zabbix-agent && \
     ln -sf /usr/bin/python3 /usr/local/bin/python3 && \
     ln -sf /usr/bin/pip3 /usr/local/bin/pip3 && \
     mkdir -p /var/run/munge /run/munge /var/lib/munge /var/log/munge /etc/munge && \
     mkdir -p /var/log/slurm/ /etc/slurm && \
     chown -R munge:munge /etc/munge /var/run/munge /var/lib/munge /var/log/munge /run/munge && \
     chmod 700 /var/lib/munge /var/run/munge && \
-    chmod 755 /run/munge && \
-    apt list nvidia-driver-*
+    chmod 755 /run/munge
 
 # Install Slurm Job Exporter 
 RUN mkdir -p /opt/slurm-job-exporter && \
@@ -220,7 +212,7 @@ RUN mkdir -p /var/spool/slurmctld /var/log/slurm/ /var/run/slurm /etc/slurm && \
     chown munge:munge -R /etc/munge
 
 # Clean Up
-RUN apt-get purge -y \
+RUN apt-get purge -y --autoremove \
     build-essential \
     cmake \
     gcc \
@@ -248,7 +240,6 @@ RUN apt-get purge -y \
     libcurl4-openssl-dev \
     software-properties-common \
     libjwt-dev && \
-    apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
     /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \
@@ -261,4 +252,3 @@ COPY openscap_remediate.sh /openscap_remediate.sh
 # Make scripts executable
 RUN chmod +x /openscap_scan.sh /openscap_remediate.sh
 
-CMD ["/sbin/init"]
