@@ -82,8 +82,8 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     linux-image-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION}
 
-RUN apt-get purge linux-headers-* && \
-    apt-get install linux-headers-$(uname -r) linux-headers-generic build-essential && \
+RUN apt-get purge linux-headers-* -y && \
+    apt-get install linux-headers-$(uname -r) linux-headers-generic build-essential -y && \
     ln -s /usr/src/linux-headers-$(uname -r) /lib/modules/$(uname -r)/build
 
 RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
