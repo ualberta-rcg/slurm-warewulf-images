@@ -88,7 +88,7 @@ RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Lin
     chmod +x /tmp/NVIDIA.run
     
 # Install the NVIDIA driver silently, without building kernel modules
-RUN /tmp/NVIDIA.run --silent --no-kernel-module && \
+RUN /tmp/NVIDIA.run --no-systemd --kernel-source-path=/lib/modules/$(uname -r)/build  --silent --no-kernel-module && \
     rm /tmp/NVIDIA.run
 
 # Ensure DKMS builds NVIDIA kernel modules during runtime
