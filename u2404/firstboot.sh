@@ -13,8 +13,7 @@ LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH:-}
 NVIDIA_DRIVER_VERSION=535
 NVIDIA_VISIBLE_DEVICES=all
 NVIDIA_DRIVER_CAPABILITIES=compute,utility
-
-# Install CVMFS
+DEBIAN_FRONTEND=noninteractive
 
 mkdir -p /var/run/nvidia-persistenced
 echo "nvidia" >> /etc/modules 
@@ -32,7 +31,7 @@ nvidia-smi
 depmod -a
 modprobe nvidia
 
-
+# Install CVMFS
 wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb
 dpkg --force-all -i cvmfs-release-latest_all.deb 
 rm -f cvmfs-release-latest_all.deb
