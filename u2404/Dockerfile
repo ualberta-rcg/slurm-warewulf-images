@@ -93,7 +93,9 @@ RUN /tmp/NVIDIA.run --no-systemd --kernel-source-path=/lib/modules/${KERNEL_VERS
     rm /tmp/NVIDIA.run
 
 # Ensure DKMS builds NVIDIA kernel modules during runtime
-RUN dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
+RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
+    echo "Using NVIDIA driver version: $NVIDIA_DRIVER_VERSION" && \
+    dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
     dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} && \
     dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION}
 
