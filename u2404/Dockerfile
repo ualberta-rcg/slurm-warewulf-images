@@ -165,7 +165,7 @@ RUN apt-get purge -y \
     automake && \
     apt-get autoremove -y && \
     apt-get clean && \
-    apt-get install openscap-scanner -y && \
+    apt-get install openscap-scanner netplan.io -y && \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
     /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \ 
     /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d && \
