@@ -81,6 +81,7 @@ jobs:
 
           # Clean up the temporary directory
           rm -rf temp-compliance-reports
+          rm -rf /usr/share/xml/scap/ssg/content
     
           # Ensure reports directory exists
           mkdir -p reports/$GITHUB_REF_NAME
