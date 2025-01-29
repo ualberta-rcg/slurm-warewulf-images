@@ -21,6 +21,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     bash-completion \
     net-tools \
     openssh-server \
+    initramfs-tools \
     gnupg \
     lsb-release \
     ca-certificates \
