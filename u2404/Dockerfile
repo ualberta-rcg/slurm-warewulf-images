@@ -137,9 +137,6 @@ RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
 
-# Clean Up APT Repo
-RUN apt autoremove -y && apt clean && rm -rf /var/lib/apt/lists/* && rm /usr/sbin/policy-rc.d
-
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
