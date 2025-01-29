@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+#set -e
 
 # Log everything we do
 exec 1> >(logger -s -t $(basename $0)) 2>&1
@@ -190,6 +190,31 @@ make install
 touch /var/log/slurm/slurm-dbd.log
 touch /var/log/slurm/slurmctld.log
 chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin 
+
+cat <<EOF > /etc/systemd/system/slurmd.service
+[Unit]
+Description=Slurm Node Daemon
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=slurm
+Group=slurm
+ExecStartPre=/bin/sleep 60
+ExecStart=/opt/software/slurm/sbin/slurmd -D
+Restart=always
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+systemctl daemon-reload
+systemctl enable munge
+systemctl start munge
+systemctl enable slurmd
+systemctl start slurmd
 
 # Clean Up
 apt-get purge -y --autoremove \
