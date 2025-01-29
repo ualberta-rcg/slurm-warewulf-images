@@ -153,29 +153,11 @@ RUN apt-get purge -y \
     cmake \
     gcc \
     make \
-    man-db \
     zlib1g-dev \
     linux-headers-generic \
     pkg-config \
     autoconf \
-    automake \
-    libssl-dev \
-    libev-dev \
-    libevent-dev \
-    libtool \
-    libyaml-dev \
-    libpam0g-dev \
-    liblua5.3-dev \
-    libmunge-dev \
-    libhdf5-dev \
-    libmariadb-dev \
-    librrd-dev \
-    libjson-c-dev \
-    libhwloc-dev \
-    libnuma-dev \
-    libcurl4-openssl-dev \
-    software-properties-common \
-    libjwt-dev && \
+    automake && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
