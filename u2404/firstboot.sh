@@ -201,7 +201,6 @@ Wants=network-online.target
 Type=simple
 User=slurm
 Group=slurm
-ExecStartPre=/bin/sleep 60
 ExecStart=/opt/software/slurm/sbin/slurmd -D
 Restart=always
 LimitNOFILE=65536
