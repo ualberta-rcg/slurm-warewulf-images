@@ -31,7 +31,6 @@ rm -f cvmfs-release-latest_all.deb
 apt-get update -y
 apt-get upgrade -y
 apt-get install -y \
-    # Core Utilities
     wget \
     curl \
     unzip \
@@ -73,11 +72,10 @@ apt-get install -y \
     iftop \
     iotop \
     sysstat \
-    lsof \ 
-    strace \    
+    lsof \
+    strace \
     openssl \
     ethtool \
-    iperf3 \
     iptables-persistent \
     iputils-ping \
     dnsutils \
@@ -141,6 +139,7 @@ apt-get install -y \
     cvmfs \
     cvmfs-fuse3
 
+
 ln -sf /usr/bin/python3 /usr/local/bin/python3 
 ln -sf /usr/bin/pip3 /usr/local/bin/pip3 
 mkdir -p /var/run/munge /run/munge /var/lib/munge /var/log/munge /etc/munge /var/log/slurm/ /etc/slurm /var/spool/slurmctld /var/run/slurm
@@ -190,6 +189,7 @@ make install
 touch /var/log/slurm/slurm-dbd.log
 touch /var/log/slurm/slurmctld.log
 chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin 
+echo 'export PATH="/opt/software/slurm/bin:$PATH"' | tee -a /etc/profile
 
 cat <<EOF > /etc/systemd/system/slurmd.service
 [Unit]
@@ -201,7 +201,6 @@ Wants=network-online.target
 Type=simple
 User=slurm
 Group=slurm
-ExecStartPre=/bin/sleep 60
 ExecStart=/opt/software/slurm/sbin/slurmd -D
 Restart=always
 LimitNOFILE=65536
@@ -231,14 +230,17 @@ apt-get purge -y --autoremove \
     libcurl4-openssl-dev
 
 apt-get clean -y 
-rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/* /usr/share/doc /usr/share/man /usr/share/locale /usr/share/info 
 
 # Zabbix Setup
 sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
 
+mkdir /var/log/zabbix-agent/
+chown zabbix:zabbix -R /var/log/zabbix-agent/
+service zabbix-agent restart
+
 # Disable and cleanup
 systemctl disable firstboot.service
-rm /etc/systemd/system/firstboot.service
-rm -- "$0"
+#rm /etc/systemd/system/firstboot.service
+#rm -- "$0"
 
 echo "First boot configuration complete"
