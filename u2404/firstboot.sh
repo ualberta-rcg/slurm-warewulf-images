@@ -189,6 +189,7 @@ make install
 touch /var/log/slurm/slurm-dbd.log
 touch /var/log/slurm/slurmctld.log
 chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin 
+echo 'export PATH="/opt/software/slurm/bin:$PATH"' | tee -a /etc/profile
 
 cat <<EOF > /etc/systemd/system/slurmd.service
 [Unit]
