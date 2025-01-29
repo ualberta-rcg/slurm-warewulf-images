@@ -28,8 +28,7 @@ rm -f cvmfs-release-latest_all.deb
 
 # Install System Dependencies and Upgrade
 apt-get update -y
-apt-get upgrade -y
-apt-get install --reinstall --install-recommends -y \
+apt-get install --install-recommends -y \
     wget \
     curl \
     unzip \
