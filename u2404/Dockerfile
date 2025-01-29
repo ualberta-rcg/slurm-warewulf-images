@@ -21,6 +21,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     bash-completion \
     net-tools \
     openssh-server \
+    openssh-client \
+    iproute2 \
+    iputils-ping \
+    dnsutils \
     initramfs-tools \
     gnupg \
     lsb-release \
