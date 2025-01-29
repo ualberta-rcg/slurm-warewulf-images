@@ -144,7 +144,8 @@ COPY firstboot.sh /usr/local/sbin/
 RUN chmod +x /usr/local/sbin/firstboot.sh
 
 # Clean Up
-RUN apt-get purge -y \
+RUN apt-get install openscap-scanner -y && \
+    apt-get purge -y \
     build-essential \
     cmake \
     libtool \
@@ -166,8 +167,7 @@ RUN apt-get purge -y \
     /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d
 
 # Fetch the latest SCAP Security Guide
-RUN apt-get install openscap-scanner -y && \
-    export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
+RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
     echo "🔄 Using SCAP Security Guide version: $SSG_VERSION" && \
     SSG_VERSION_NO_V=$(echo "$SSG_VERSION" | sed 's/^v//') && \
     echo "🔄 Stripped Version: $SSG_VERSION_NO_V" && \
