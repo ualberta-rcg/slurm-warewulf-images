@@ -147,6 +147,8 @@ RUN chmod +x /usr/local/sbin/firstboot.sh
 
 # Clean Up
 RUN apt-get purge -y \
+    linux-headers-generic \
+    linux-headers-${KERNEL_VERSION} \
     build-essential \
     cmake \
     gcc \
@@ -177,7 +179,7 @@ RUN apt-get purge -y \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
-    /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \
+    /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \ 
     /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d
 
 # Fetch the latest SCAP Security Guide
