@@ -31,7 +31,6 @@ rm -f cvmfs-release-latest_all.deb
 apt-get update -y
 apt-get upgrade -y
 apt-get install -y \
-    # Core Utilities
     wget \
     curl \
     unzip \
@@ -73,8 +72,8 @@ apt-get install -y \
     iftop \
     iotop \
     sysstat \
-    lsof \ 
-    strace \    
+    lsof \
+    strace \
     openssl \
     ethtool \
     iperf3 \
@@ -140,6 +139,7 @@ apt-get install -y \
     zabbix-agent \
     cvmfs \
     cvmfs-fuse3
+
 
 ln -sf /usr/bin/python3 /usr/local/bin/python3 
 ln -sf /usr/bin/pip3 /usr/local/bin/pip3 
