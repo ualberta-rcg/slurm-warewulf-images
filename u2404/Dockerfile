@@ -149,6 +149,8 @@ RUN chmod +x /usr/local/sbin/firstboot.sh
 RUN apt-get purge -y \
     linux-headers-generic \
     linux-headers-${KERNEL_VERSION} \
+    linux-image-${KERNEL_VERSION} \
+    linux-modules-${KERNEL_VERSION}
     build-essential \
     cmake \
     gcc \
