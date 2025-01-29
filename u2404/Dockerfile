@@ -12,7 +12,7 @@ ENV KERNEL_VERSION=6.11.0-14-generic
 RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
 
 # Install System Dependencies and Upgrade
-RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=noninteractive apt update && DEBIAN_FRONTEND=noninteractive apt install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     # Core Utilities
     wget \
     curl \
@@ -21,14 +21,12 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     bash-completion \
     net-tools \
     openssh-server \
-    openssh-client \
     gnupg \
     lsb-release \
     ca-certificates \
     tzdata \
     vim \
     jq \
-    linux-image-generic \
     systemd \
     openmpi-bin \
     kmod \
@@ -62,7 +60,6 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     libibumad3 \
     libibmad5 \
     gettext \
-    pkg-config \
     autoconf \
     automake \
     sudo \
@@ -72,17 +69,21 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     libpmix-bin \
     rrdtool \
     lua5.3 \
-    build-essential \
     dkms \
-    libglvnd-dev\ 
+    linux-image-${KERNEL_VERSION} \
+    linux-headers-${KERNEL_VERSION} \
+    linux-modules-${KERNEL_VERSION} \
+    # Build dependencies for NVIDIA driver. Keep these here.
+    build-essential \
+    cmake \
+    libtool \
+    zlib1g-dev \
+    liblua5.3-0 \
     pkg-config \
     xorg-dev \
     libx11-dev \
     libxext-dev \
-    linux-headers-generic \
-    linux-headers-${KERNEL_VERSION} \
-    linux-image-${KERNEL_VERSION} \
-    linux-modules-${KERNEL_VERSION} && \
+    libglvnd-dev && \
     ln -s /usr/src/linux-headers-${KERNEL_VERSION} /lib/modules/${KERNEL_VERSION}/build
 
 # Combine NVIDIA driver download, installation, and DKMS setup
@@ -144,17 +145,18 @@ RUN chmod +x /usr/local/sbin/firstboot.sh
 
 # Clean Up
 RUN apt-get purge -y \
-    linux-headers-generic \
-    linux-headers-${KERNEL_VERSION} \
-    linux-image-${KERNEL_VERSION} \
-    linux-modules-${KERNEL_VERSION} \
     build-essential \
     cmake \
+    libtool \
+    zlib1g-dev \
+    liblua5.3-0 \
+    pkg-config \
+    xorg-dev \
+    libx11-dev \
+    libxext-dev \
+    libglvnd-dev \
     gcc \
     make \
-    zlib1g-dev \
-    linux-headers-generic \
-    pkg-config \
     autoconf \
     automake && \
     apt-get autoremove -y && \
