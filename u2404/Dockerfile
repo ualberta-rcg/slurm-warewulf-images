@@ -1,4 +1,3 @@
-#FROM nvidia/cuda:12.6.3-base-ubuntu24.04
 FROM ubuntu:24.10
 
 # Set Environment Variables
