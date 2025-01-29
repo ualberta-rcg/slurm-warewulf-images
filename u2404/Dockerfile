@@ -164,7 +164,9 @@ RUN apt-get purge -y \
     apt-get install openscap-scanner -y && \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
     /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \ 
-    /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d
+    /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d && \
+    groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
+    groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser
 
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
