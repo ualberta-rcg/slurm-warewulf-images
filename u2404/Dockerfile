@@ -166,7 +166,9 @@ RUN apt-get purge -y \
     /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \ 
     /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d && \
     groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
-    groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser
+    groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser && \
+    echo "wwuser:wwpassword" | chpasswd && \
+    usermod -aG sudo wwuser
 
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
