@@ -39,7 +39,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     systemd-sysv \
     dbus \
     pciutils \
-    openscap-scanner \
     netbase \
     cmake \
     libhwloc15 \
@@ -167,7 +166,8 @@ RUN apt-get purge -y \
     /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d
 
 # Fetch the latest SCAP Security Guide
-RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
+RUN apt-get install openscap-scanner -y && \
+    export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
     echo "🔄 Using SCAP Security Guide version: $SSG_VERSION" && \
     SSG_VERSION_NO_V=$(echo "$SSG_VERSION" | sed 's/^v//') && \
     echo "🔄 Stripped Version: $SSG_VERSION_NO_V" && \
