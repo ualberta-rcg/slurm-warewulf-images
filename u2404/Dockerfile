@@ -149,33 +149,17 @@ RUN chmod +x /usr/local/sbin/firstboot.sh
 RUN apt-get purge -y \
     linux-headers-generic \
     linux-headers-${KERNEL_VERSION} \
+    linux-image-${KERNEL_VERSION} \
+    linux-modules-${KERNEL_VERSION}
     build-essential \
     cmake \
     gcc \
     make \
-    man-db \
     zlib1g-dev \
     linux-headers-generic \
     pkg-config \
     autoconf \
-    automake \
-    libssl-dev \
-    libev-dev \
-    libevent-dev \
-    libtool \
-    libyaml-dev \
-    libpam0g-dev \
-    liblua5.3-dev \
-    libmunge-dev \
-    libhdf5-dev \
-    libmariadb-dev \
-    librrd-dev \
-    libjson-c-dev \
-    libhwloc-dev \
-    libnuma-dev \
-    libcurl4-openssl-dev \
-    software-properties-common \
-    libjwt-dev && \
+    automake && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
