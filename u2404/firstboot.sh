@@ -21,7 +21,6 @@ nvidia-smi
 depmod -a
 modprobe nvidia
 
-
 # Install CVMFS
 wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb
 dpkg --force-all -i cvmfs-release-latest_all.deb 
@@ -30,11 +29,12 @@ rm -f cvmfs-release-latest_all.deb
 # Install System Dependencies and Upgrade
 apt-get update -y
 apt-get upgrade -y
-apt-get install -y \
+apt-get install --reinstall --install-recommends -y \
     wget \
     curl \
     unzip \
     git \
+    cron \
     locales \
     bash-completion \
     net-tools \
@@ -215,27 +215,8 @@ systemctl start munge
 systemctl enable slurmd
 systemctl start slurmd
 
-# Clean Up
-apt-get purge -y --autoremove \
-    build-essential \
-    cmake \
-    gcc \
-    make \
-    man-db \
-    zlib1g-dev \
-    linux-headers-generic \
-    pkg-config \
-    autoconf \
-    automake \
-    libcurl4-openssl-dev
-
-apt-get clean -y 
-
 # Zabbix Setup
 sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
-
-mkdir /var/log/zabbix-agent/
-chown zabbix:zabbix -R /var/log/zabbix-agent/
 service zabbix-agent restart
 
 # Disable and cleanup
