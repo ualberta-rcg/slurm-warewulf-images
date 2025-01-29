@@ -76,7 +76,6 @@ apt-get install -y \
     strace \
     openssl \
     ethtool \
-    iperf3 \
     iptables-persistent \
     iputils-ping \
     dnsutils \
