@@ -141,8 +141,6 @@ apt-get install -y \
     cvmfs \
     cvmfs-fuse3
 
-groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm 
-groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser
 ln -sf /usr/bin/python3 /usr/local/bin/python3 
 ln -sf /usr/bin/pip3 /usr/local/bin/pip3 
 mkdir -p /var/run/munge /run/munge /var/lib/munge /var/log/munge /etc/munge /var/log/slurm/ /etc/slurm /var/spool/slurmctld /var/run/slurm
