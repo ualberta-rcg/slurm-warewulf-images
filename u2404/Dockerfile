@@ -65,6 +65,7 @@ RUN DEBIAN_FRONTEND=noninteractive dpkg --configure -a && DEBIAN_FRONTEND=nonint
     pkg-config \
     autoconf \
     automake \
+    sudo \
     gcc \
     make \
     libmunge2 \
