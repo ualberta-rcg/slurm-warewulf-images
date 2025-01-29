@@ -144,8 +144,7 @@ COPY firstboot.sh /usr/local/sbin/
 RUN chmod +x /usr/local/sbin/firstboot.sh
 
 # Clean Up
-RUN apt-get install openscap-scanner -y && \
-    apt-get purge -y \
+RUN apt-get purge -y \
     build-essential \
     cmake \
     libtool \
@@ -162,6 +161,7 @@ RUN apt-get install openscap-scanner -y && \
     automake && \
     apt-get autoremove -y && \
     apt-get clean && \
+    apt-get install openscap-scanner -y && \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
     /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \ 
     /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d
