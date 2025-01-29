@@ -145,6 +145,41 @@ COPY firstboot.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
 RUN chmod +x /usr/local/sbin/firstboot.sh
 
+# Clean Up
+RUN apt-get purge -y \
+    build-essential \
+    cmake \
+    gcc \
+    make \
+    man-db \
+    zlib1g-dev \
+    linux-headers-generic \
+    pkg-config \
+    autoconf \
+    automake \
+    libssl-dev \
+    libev-dev \
+    libevent-dev \
+    libtool \
+    libyaml-dev \
+    libpam0g-dev \
+    liblua5.3-dev \
+    libmunge-dev \
+    libhdf5-dev \
+    libmariadb-dev \
+    librrd-dev \
+    libjson-c-dev \
+    libhwloc-dev \
+    libnuma-dev \
+    libcurl4-openssl-dev \
+    software-properties-common \
+    libjwt-dev && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
+    /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \
+    /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d
+
 # Fetch the latest SCAP Security Guide
 RUN export SSG_VERSION=$(curl -s https://api.github.com/repos/ComplianceAsCode/content/releases/latest | grep -oP '"tag_name": "\K[^"]+' || echo "0.1.66") && \
     echo "🔄 Using SCAP Security Guide version: $SSG_VERSION" && \
