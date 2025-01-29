@@ -26,7 +26,13 @@ wget https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb
 dpkg --force-all -i cvmfs-release-latest_all.deb 
 rm -f cvmfs-release-latest_all.deb
 
+# Install Zabbix Agent
+wget https://repo.zabbix.com/zabbix/7.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_latest_7.0+ubuntu24.04_all.deb
+dpkg --force-all -i zabbix-release_latest_7.0+ubuntu24.04_all.deb
+rm -f zabbix-release_latest_7.0+ubuntu24.04_all.deb
+
 # Install System Dependencies and Upgrade
+export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install --install-recommends -y \
     wget \
@@ -188,7 +194,8 @@ make install
 touch /var/log/slurm/slurm-dbd.log
 touch /var/log/slurm/slurmctld.log
 chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin 
-echo 'export PATH="/opt/software/slurm/bin:$PATH"' | tee -a /etc/profile
+echo "PATH=/opt/software/slurm/bin:\$PATH" >> /etc/environment
+echo 'export PATH="/opt/software/slurm/bin:$PATH"' >> /etc/bash.bashrc
 
 cat <<EOF > /etc/systemd/system/slurmd.service
 [Unit]
@@ -220,7 +227,7 @@ service zabbix-agent restart
 
 # Disable and cleanup
 systemctl disable firstboot.service
-#rm /etc/systemd/system/firstboot.service
+rm /etc/systemd/system/firstboot.service
 #rm -- "$0"
 
 echo "First boot configuration complete"
