@@ -49,6 +49,10 @@ apt-get install --install-recommends -y \
     gnupg \
     lsb-release \
     ca-certificates \
+    build-essential \
+    fakeroot \
+    devscripts \
+    equivs \
     rsync \
     cron \
     tzdata \
