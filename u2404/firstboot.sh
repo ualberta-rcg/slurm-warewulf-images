@@ -40,6 +40,7 @@ apt-get install --install-recommends -y \
     unzip \
     git \
     cron \
+    libdbus-1-dev \
     locales \
     bash-completion \
     net-tools \
