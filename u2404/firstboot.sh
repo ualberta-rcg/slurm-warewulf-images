@@ -228,6 +228,10 @@ systemctl start slurmd
 sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
 service zabbix-agent restart
 
+# CVMFS Setup
+cvmfs_config setup
+cvmfs_config probe
+
 # Disable and cleanup
 systemctl disable firstboot.service
 rm /etc/systemd/system/firstboot.service
