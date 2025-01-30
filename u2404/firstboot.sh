@@ -49,6 +49,10 @@ apt-get install --install-recommends -y \
     gnupg \
     lsb-release \
     ca-certificates \
+    build-essential \
+    fakeroot \
+    devscripts \
+    equivs \
     rsync \
     cron \
     tzdata \
@@ -209,6 +213,10 @@ if [ "${#INSTALL_LIST[@]}" -gt 0 ]; then
 else
     echo "No .deb packages to install."
 fi
+
+mkdir -p /var/spool/slurmd
+chown -R slurm:slurm /var/spool/slurmd
+
 
 systemctl daemon-reload
 systemctl enable munge
