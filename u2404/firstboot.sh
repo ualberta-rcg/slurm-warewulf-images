@@ -6,6 +6,7 @@ exec 1> >(logger -s -t $(basename $0)) 2>&1
 
 echo "Starting first boot configuration..."
 
+
 SLURM_VERSION=24-05-5-1
 PREFIX=/opt/software/slurm
 PATH=/usr/local/ssl/bin:$PREFIX/bin:/opt/software/slurm/sbin:${PATH:-}
