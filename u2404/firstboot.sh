@@ -127,6 +127,7 @@ apt-get install --install-recommends -y \
     python3 \
     python3-pip \
     python3-venv \
+    python3-psutil \
     munge \
     libmunge-dev \
     libmunge2 \
