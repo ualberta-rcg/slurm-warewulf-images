@@ -194,8 +194,8 @@ make install
 touch /var/log/slurm/slurm-dbd.log
 touch /var/log/slurm/slurmctld.log
 chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin 
-echo "PATH=/opt/software/slurm/bin:\$PATH" >> /etc/environment
-echo 'export PATH="/opt/software/slurm/bin:$PATH"' >> /etc/bash.bashrc
+echo "PATH=/opt/software/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" >> /etc/environment
+echo 'export PATH="/opt/software/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"' >> /etc/bash.bashrc
 
 cat <<EOF > /etc/systemd/system/slurmd.service
 [Unit]
