@@ -214,6 +214,10 @@ else
     echo "No .deb packages to install."
 fi
 
+mkdir -p /var/spool/slurmd
+chown -R slurm:slurm /var/spool/slurmd
+
+
 systemctl daemon-reload
 systemctl enable munge
 systemctl start munge
