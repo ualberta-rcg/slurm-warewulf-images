@@ -40,6 +40,7 @@ apt-get install --install-recommends -y \
     unzip \
     git \
     cron \
+    libdbus-1-dev \
     locales \
     bash-completion \
     net-tools \
@@ -189,9 +190,6 @@ tar -xzf slurm-${SLURM_VERSION}.tar.gz && cd slurm-slurm-${SLURM_VERSION} && \
 make -j$(nproc) 
 make install 
 cd contribs 
-make 
-make install
-cd ../src/plugins/
 make 
 make install
 touch /var/log/slurm/slurm-dbd.log
