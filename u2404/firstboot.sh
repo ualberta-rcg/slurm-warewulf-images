@@ -192,9 +192,6 @@ make install
 cd contribs 
 make 
 make install
-cd ../src/plugins/
-make 
-make install
 touch /var/log/slurm/slurm-dbd.log
 touch /var/log/slurm/slurmctld.log
 mkdir /var/spool/slurmd
