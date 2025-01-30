@@ -127,6 +127,7 @@ apt-get install --install-recommends -y \
     python3 \
     python3-pip \
     python3-venv \
+    python3-psutil \
     munge \
     libmunge-dev \
     libmunge2 \
@@ -171,51 +172,43 @@ sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/sy
 chmod 644 /etc/systemd/system/slurm-job-exporter.service 
 
 # Configure and build Slurm with the additional features enabled
-mkdir -p /usr/src && cd /usr/src && \
-curl -LO https://github.com/SchedMD/slurm/archive/refs/tags/slurm-${SLURM_VERSION}.tar.gz && \
-tar -xzf slurm-${SLURM_VERSION}.tar.gz && cd slurm-slurm-${SLURM_VERSION} && \
-./configure --prefix=$PREFIX \
-            --sysconfdir=/etc/slurm \
-            --with-munge \
-            --with-pmix \
-            --with-hdf5 \
-            --with-mysql \
-            --enable-debug \
-            --enable-pam \
-            --enable-restd \
-            --enable-lua \
-            --enable-rrdtool \
-            --enable-mpi 
-            
-make -j$(nproc) 
-make install 
-cd contribs 
-make 
-make install
-touch /var/log/slurm/slurm-dbd.log
-touch /var/log/slurm/slurmctld.log
-mkdir /var/spool/slurmd
-chown -R slurm:slurm /etc/slurm /var/spool/slurmctld /var/run/slurm /var/log/slurm /opt/software/slurm/sbin /var/spool/slurmd
-echo "PATH=/opt/software/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin" >> /etc/environment
-echo 'export PATH="/opt/software/slurm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"' >> /etc/bash.bashrc
+mkdir -p /usr/src && cd /usr/src 
+curl -LO https://github.com/SchedMD/slurm/archive/refs/tags/slurm-${SLURM_VERSION}.tar.gz 
+tar -xzf slurm-${SLURM_VERSION}.tar.gz && cd slurm-slurm-${SLURM_VERSION} 
+mk-build-deps -ir --tool='apt-get -qq -y -o Debug::pkgProblemResolver=yes --no-install-recommends' debian/control
+debuild -b -uc -us >/dev/null 
+cd ..
+# Define keywords to exclude (whitelist for exclusion)
+EXCLUDE_KEYWORDS=("slurmdbd" "slurmctld" "slurmrestd")
 
-cat <<EOF > /etc/systemd/system/slurmd.service
-[Unit]
-Description=Slurm Node Daemon
-After=network-online.target
-Wants=network-online.target
+# Step 1: Generate the list of .deb files
+ALL_DEBS=($(find /usr/src/ -maxdepth 1 -type f -name "*.deb"))
 
-[Service]
-Type=simple
-User=slurm
-Group=slurm
-ExecStart=/opt/software/slurm/sbin/slurmd -D
-Restart=always
-LimitNOFILE=65536
+# Step 2: Filter out unwanted .deb files
+INSTALL_LIST=()
+for deb in "${ALL_DEBS[@]}"; do
+    skip=false
+    for keyword in "${EXCLUDE_KEYWORDS[@]}"; do
+        if [[ "$deb" == *"$keyword"* ]]; then
+            skip=true
+            break
+        fi
+    done
+    if [ "$skip" = false ]; then
+        INSTALL_LIST+=("$deb")
+    fi
+done
 
-[Install]
-WantedBy=multi-user.target
-EOF
+# Step 3: Display the list of packages to be installed
+echo "The following .deb files will be installed:"
+printf '%s\n' "${INSTALL_LIST[@]}"
+
+# Step 4: Install the selected .deb packages
+if [ "${#INSTALL_LIST[@]}" -gt 0 ]; then
+    apt-get install -y "${INSTALL_LIST[@]}"
+else
+    echo "No .deb packages to install."
+fi
 
 systemctl daemon-reload
 systemctl enable munge
