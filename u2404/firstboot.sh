@@ -168,6 +168,8 @@ cd /opt/slurm-job-exporter
 git clone https://github.com/guilbaults/slurm-job-exporter.git . 
 python3 -m venv /opt/slurm-job-exporter/venv 
 /opt/slurm-job-exporter/venv/bin/pip install -r requirements.txt 
+sed -i '1i#!/usr/bin/env python3' /opt/slurm-job-exporter/slurm-job-exporter.py
+sed -i 's#/var/run#/run#' /opt/slurm-job-exporter/slurm-job-exporter.service
 ln -s /opt/slurm-job-exporter/slurm-job-exporter.py /usr/bin/slurm-job-exporter 
 chmod +x /usr/bin/slurm-job-exporter
 
@@ -224,6 +226,8 @@ systemctl enable munge
 systemctl start munge
 systemctl enable slurmd
 systemctl start slurmd
+systemctl enable slurm-job-exporter
+systemctl start slurm-job-exporter
 
 # Zabbix Setup
 sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
