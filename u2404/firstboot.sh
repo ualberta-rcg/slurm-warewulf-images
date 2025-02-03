@@ -36,6 +36,7 @@ apt-get install --install-recommends -y \
     unzip \
     git \
     cron \
+    hwloc \
     libdbus-1-dev \
     locales \
     bash-completion \
