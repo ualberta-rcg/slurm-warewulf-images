@@ -1,0 +1,30 @@
+name: Create a Slurm Compatible JupyterHub
+
+on:
+  push:
+    branches:
+      - jupyterhub
+
+jobs:
+  build-scan-remediate-push:
+    name: Build a Customized Docker Image of a Slurm Node, Apply CIS L2 Server Benchmarks, Push to Docker Repository
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_REPO: ${{ vars.CONTAINER_IMAGE }}
+      GITHUB_REF_NAME: ${{ github.ref_name }}   
+      
+    steps:
+      - name: 🛠️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 🐳 Build Docker Image
+        run: |
+          docker build -t $DOCKER_REPO:$GITHUB_REF_NAME ./$GITHUB_REF_NAME
+
+ 
+      - name: 🚀 Push Docker Image
+        run: |
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+          docker tag $DOCKER_REPO:$GITHUB_REF_NAME-remediated $DOCKER_REPO:$GITHUB_REF_NAME
+          docker push $DOCKER_REPO:$GITHUB_REF_NAME
