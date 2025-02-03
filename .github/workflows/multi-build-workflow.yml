@@ -41,14 +41,14 @@ jobs:
         run: |
           docker cp openscap-remediate:/home/oscap-results-remediated.html ./oscap-results-remediated.html
 
-      - name: 📊 Upload Compliance Reports as Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: openscap-reports-$GITHUB_REF_NAME
-          path: |
-            oscap-results.html
-            oscap-results.xml
-            oscap-results-remediated.html
+#      - name: 📊 Upload Compliance Reports as Artifacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: openscap-reports-$GITHUB_REF_NAME
+#          path: |
+#            oscap-results.html
+#            oscap-results.xml
+#            oscap-results-remediated.html
 
       - name: 🚀 Commit and Push Compliance Reports
         run: |
