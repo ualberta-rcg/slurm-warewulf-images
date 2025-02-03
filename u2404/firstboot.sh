@@ -6,14 +6,9 @@ exec 1> >(logger -s -t $(basename $0)) 2>&1
 
 echo "Starting first boot configuration..."
 
-
 SLURM_VERSION=24-05-5-1
-PREFIX=/opt/software/slurm
 PATH=/usr/local/ssl/bin:$PREFIX/bin:/opt/software/slurm/sbin:${PATH:-}
 LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH:-}
-NVIDIA_DRIVER_VERSION=535
-NVIDIA_VISIBLE_DEVICES=all
-NVIDIA_DRIVER_CAPABILITIES=compute,utility
 DEBIAN_FRONTEND=noninteractive
 
 # NVIDIA setup
@@ -237,8 +232,18 @@ service zabbix-agent restart
 cvmfs_config setup
 cvmfs_config probe
 
+# Jupyter-Lab Install. Jupyter Lab is Launched with the jupyter-lab command:
+pip3 install --no-input jupyterlab notebook ipykernel --break-system-packages 
+
 # Disable and cleanup
 systemctl disable firstboot.service
+
+# Remove Stuff
+rm -rf /NVIDIA-Linux*
+rm -rf /*.sh
+rm -rf /*.xml
+rm -rf /usr/src/*
+
 rm /etc/systemd/system/firstboot.service
 #rm -- "$0"
 
