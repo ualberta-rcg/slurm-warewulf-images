@@ -73,7 +73,6 @@ apt-get install --install-recommends -y \
     libxml2-dev \
     numactl \
     prometheus-node-exporter \
-    nfs-common \
     cockpit \
     htop \
     iftop \
