@@ -78,6 +78,7 @@ RUN apt-get update && apt-get install -y \
     ignition \
     gdisk \
     sssd \
+    nfs-common \
     linux-image-${KERNEL_VERSION} \
     linux-headers-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION} \
