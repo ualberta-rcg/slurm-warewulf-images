@@ -31,15 +31,15 @@ jobs:
 
       - name: Build Slurm DEB Packages
         run: |
-          mkdir -p /usr/src && cd /usr/src
-          curl -LO https://github.com/SchedMD/slurm/archive/refs/tags/slurm-${{ vars.SLURM_VERSION }}.tar.gz
-          tar -xzf slurm-${{ vars.SLURM_VERSION }}.tar.gz && cd slurm-slurm-${{ vars.SLURM_VERSION }}
+          sudo mkdir -p /usr/src && cd /usr/src
+          sudo curl -LO https://github.com/SchedMD/slurm/archive/refs/tags/slurm-${{ vars.SLURM_VERSION }}.tar.gz
+          sudo tar -xzf slurm-${{ vars.SLURM_VERSION }}.tar.gz && cd slurm-slurm-${{ vars.SLURM_VERSION }}
           
           # Install Slurm build dependencies
-          mk-build-deps -ir --tool='apt-get -qq -y -o Debug::pkgProblemResolver=yes --no-install-recommends' debian/control
+          sudo mk-build-deps -ir --tool='apt-get -qq -y -o Debug::pkgProblemResolver=yes --no-install-recommends' debian/control
           
           # Build the DEB packages
-          debuild -b -uc -us >/dev/null
+          sudo debuild -b -uc -us >/dev/null
 
       - name: Rename and Move DEB Packages
         run: |
