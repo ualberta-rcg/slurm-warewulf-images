@@ -43,10 +43,10 @@ jobs:
 
       - name: Rename and Move DEB Packages
         run: |
-          mkdir -p $GITHUB_WORKSPACE/slurm-debs
+          sudo mkdir -p $GITHUB_WORKSPACE/slurm-debs
           for deb in /usr/src/*.deb; do
             base_name=$(basename "$deb" .deb)
-            mv "$deb" "$GITHUB_WORKSPACE/slurm-debs/${base_name}_u2404.deb"
+            sudo mv "$deb" "$GITHUB_WORKSPACE/slurm-debs/${base_name}_u2404.deb"
           done
 
       - name: Commit and Push .deb Packages
