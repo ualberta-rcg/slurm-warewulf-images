@@ -16,7 +16,18 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y devscripts equivs build-essential fakeroot debhelper curl
+          sudo apt-get install -y \
+          devscripts \
+          equivs \
+          build-essential \
+          fakeroot \
+          debhelper \
+          curl    \
+          libpmix-dev \
+          libpmix2 \
+          libopenmpi-dev \
+          libopenmpi3 \
+          openmpi-bin
 
       - name: Build Slurm DEB Packages
         run: |
@@ -31,8 +42,8 @@ jobs:
           debuild -b -uc -us >/dev/null
           
           # Move built .deb files to /debs
-          mkdir -p $GITHUB_WORKSPACE/debs
-          find /usr/src/ -maxdepth 1 -type f -name "*.deb" -exec mv {} $GITHUB_WORKSPACE/debs/ \;
+          mkdir -p $GITHUB_WORKSPACE/slurm-debs
+          find /usr/src/ -maxdepth 1 -type f -name "*.deb" -exec mv {} $GITHUB_WORKSPACE/slurm-debs/ \;
 
       - name: Commit and Push .deb Packages
         run: |
