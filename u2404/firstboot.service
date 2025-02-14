@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStartPre=/bin/sleep 60
+ExecStartPre=/bin/sleep 15
 ExecStart=/usr/local/sbin/firstboot.sh
 RemainAfterExit=yes
 
