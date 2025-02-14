@@ -166,7 +166,7 @@ chmod 644 /etc/systemd/system/slurm-job-exporter.service
 EXCLUDE_KEYWORDS=("slurmdbd" "slurmctld" "slurmrestd")
 
 # Step 1: Generate the list of .deb files
-ALL_DEBS=($(find /slurm-debs/ -maxdepth 1 -type f -name "*.deb"))
+ALL_DEBS=($(find /u2404/ -maxdepth 1 -type f -name "*.deb"))
 
 # Step 2: Filter out unwanted .deb files
 INSTALL_LIST=()
@@ -194,7 +194,7 @@ else
     echo "No .deb packages to install."
 fi
 
-rm -rf /slurm-debs
+rm -rf /u2404
 
 mkdir -p /var/spool/slurmd
 chown -R slurm:slurm /var/spool/slurmd
