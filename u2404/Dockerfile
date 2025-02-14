@@ -19,27 +19,20 @@ RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     locales \
-    bash-completion \
     net-tools \
     openssh-server \
     openssh-client \
     iproute2 \
-    iputils-ping \
-    dnsutils \
     initramfs-tools \
     gnupg \
     lsb-release \
     ca-certificates \
     tzdata \
-    vim \
-    jq \
     systemd \
     openmpi-bin \
     kmod \
     numactl \
     sysstat \
-    lsof \ 
-    iputils-ping \
     apt-utils \
     systemd-sysv \
     dbus \
@@ -76,15 +69,11 @@ RUN apt-get update && apt-get install -y \
     lua5.3 \
     dkms \
     ignition \
-    gdisk \
-    sssd \
-    nfs-common \
     linux-image-${KERNEL_VERSION} \
     linux-headers-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION} \
     # Build dependencies for NVIDIA driver. Keep these here.
     build-essential \
-    cmake \
     libtool \
     zlib1g-dev \
     liblua5.3-0 \
