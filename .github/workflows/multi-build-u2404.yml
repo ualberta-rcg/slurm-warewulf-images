@@ -18,6 +18,10 @@ jobs:
       - name: 🛠️ Checkout Repository
         uses: actions/checkout@v4
 
+      - name: 📂 Copy .deb Files to Branch Directory
+        run: |
+          cp -v slurm-debs/*u2404.deb ./u2404/   
+
       - name: 🐳 Build Docker Image
         run: |
           docker build -t $DOCKER_REPO:$GITHUB_REF_NAME ./$GITHUB_REF_NAME
