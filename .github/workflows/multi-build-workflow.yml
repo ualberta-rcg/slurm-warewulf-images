@@ -6,7 +6,6 @@ on:
       - rocky8
       - rocky9
       - u2204
-      - u2404
 
 jobs:
   build-scan-remediate-push:
