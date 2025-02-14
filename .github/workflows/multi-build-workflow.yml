@@ -2,9 +2,10 @@ name: Build, Scan, Remediate CIS Image, Push to WareWulf
 
 on:
   push:
-    branches-ignore:
-      - main
-      - compliance-reports
+    branches:
+      - rocky8
+      - rocky9
+      - u2204
 
 jobs:
   build-scan-remediate-push:

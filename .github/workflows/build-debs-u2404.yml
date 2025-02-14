@@ -1,0 +1,62 @@
+name: Build and Commit Slurm DEB Packages
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  build-debs:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensure full history for commits
+
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+          devscripts \
+          equivs \
+          build-essential \
+          fakeroot \
+          debhelper \
+          curl    \
+          libpmix-dev \
+          libpmix2 \
+          libopenmpi-dev \
+          libopenmpi3 \
+          openmpi-bin
+
+      - name: Build Slurm DEB Packages
+        run: |
+          sudo mkdir -p /usr/src && cd /usr/src
+          sudo curl -LO https://github.com/SchedMD/slurm/archive/refs/tags/slurm-${{ vars.SLURM_VERSION }}.tar.gz
+          sudo tar -xzf slurm-${{ vars.SLURM_VERSION }}.tar.gz && cd slurm-slurm-${{ vars.SLURM_VERSION }}
+          
+          # Install Slurm build dependencies
+          sudo mk-build-deps -ir --tool='apt-get -qq -y -o Debug::pkgProblemResolver=yes --no-install-recommends' debian/control
+          
+          # Build the DEB packages
+          sudo debuild -b -uc -us >/dev/null
+
+      - name: Rename and Move DEB Packages
+        run: |
+          sudo mkdir -p $GITHUB_WORKSPACE/slurm-debs
+          for deb in /usr/src/*.deb; do
+            base_name=$(basename "$deb" .deb)
+            sudo mv "$deb" "$GITHUB_WORKSPACE/slurm-debs/${base_name}_u2404.deb"
+          done
+
+      - name: Commit and Push .deb Packages
+        run: |
+          cd $GITHUB_WORKSPACE
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add slurm-debs/
+          git commit -m "Add built Slurm .deb packages for Ubuntu 24.04"
+          git push origin main # Change to your branch if needed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

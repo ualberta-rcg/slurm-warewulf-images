@@ -35,13 +35,12 @@ apt-get install --install-recommends -y \
     curl \
     unzip \
     git \
-    cron \
+    hwloc \
     libdbus-1-dev \
     locales \
     bash-completion \
     net-tools \
-    openssh-server \
-    openssh-client \
+    sssd \
     gnupg \
     lsb-release \
     ca-certificates \
@@ -60,7 +59,6 @@ apt-get install --install-recommends -y \
     linux-image-generic \
     systemd \
     sudo \
-    libssl-dev \
     libcurl4-openssl-dev \
     libhwloc-dev \
     openmpi-bin \
@@ -72,8 +70,6 @@ apt-get install --install-recommends -y \
     libxml2-dev \
     numactl \
     prometheus-node-exporter \
-    nfs-common \
-    cockpit \
     htop \
     iftop \
     iotop \
@@ -100,7 +96,6 @@ apt-get install --install-recommends -y \
     cmake \
     libhwloc15 \
     libtool \
-    zlib1g-dev \
     liblua5.3-0 \
     libnuma1 \
     libpam0g \
@@ -116,7 +111,6 @@ apt-get install --install-recommends -y \
     libfreeipmi17 \
     libibumad3 \
     libibmad5 \
-    libev-dev \
     gettext \
     linux-headers-generic \
     pkg-config \
@@ -134,12 +128,6 @@ apt-get install --install-recommends -y \
     libpmix-bin \
     rrdtool \
     librrd-dev \
-    libhdf5-dev \
-    libmariadb-dev \
-    libjson-c-dev \
-    libyaml-dev \
-    libpam0g-dev \
-    libjwt-dev \
     lua5.3 \
     liblua5.3-dev \
     zabbix-agent \
@@ -173,18 +161,12 @@ cp /opt/slurm-job-exporter/slurm-job-exporter.service /etc/systemd/system/slurm-
 sed -i '/\[Service\]/a WorkingDirectory=/opt/slurm-job-exporter' /etc/systemd/system/slurm-job-exporter.service 
 chmod 644 /etc/systemd/system/slurm-job-exporter.service 
 
-# Configure and build Slurm with the additional features enabled
-mkdir -p /usr/src && cd /usr/src 
-curl -LO https://github.com/SchedMD/slurm/archive/refs/tags/slurm-${SLURM_VERSION}.tar.gz 
-tar -xzf slurm-${SLURM_VERSION}.tar.gz && cd slurm-slurm-${SLURM_VERSION} 
-mk-build-deps -ir --tool='apt-get -qq -y -o Debug::pkgProblemResolver=yes --no-install-recommends' debian/control
-debuild -b -uc -us >/dev/null 
-cd ..
+# Install Slurm
 # Define keywords to exclude (whitelist for exclusion)
 EXCLUDE_KEYWORDS=("slurmdbd" "slurmctld" "slurmrestd")
 
 # Step 1: Generate the list of .deb files
-ALL_DEBS=($(find /usr/src/ -maxdepth 1 -type f -name "*.deb"))
+ALL_DEBS=($(find /slurm-debs/ -maxdepth 1 -type f -name "*.deb"))
 
 # Step 2: Filter out unwanted .deb files
 INSTALL_LIST=()
@@ -211,6 +193,8 @@ if [ "${#INSTALL_LIST[@]}" -gt 0 ]; then
 else
     echo "No .deb packages to install."
 fi
+
+rm -rf /slurm-debs
 
 mkdir -p /var/spool/slurmd
 chown -R slurm:slurm /var/spool/slurmd

@@ -1,0 +1,157 @@
+name: Build, Scan, Remediate CIS Image, Push to WareWulf
+
+on:
+  push:
+    branches:
+      - u2404
+
+jobs:
+  build-scan-remediate-push:
+    name: Build a Customized Docker Image of a Slurm Node, Apply CIS L2 Server Benchmarks, Push to Docker Repository
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_REPO: ${{ vars.CONTAINER_IMAGE }}
+      GITHUB_REF_NAME: ${{ github.ref_name }}   
+      
+    steps:
+      - name: 🛠️ Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: 📂 Copy .deb Files to Branch Directory
+        run: |
+          cp -v slurm-debs/*u2404.deb ./u2404/   
+
+      - name: 🐳 Build Docker Image
+        run: |
+          docker build -t $DOCKER_REPO:$GITHUB_REF_NAME ./$GITHUB_REF_NAME
+
+      - name: 🛡️ Run OpenSCAP Scan
+        run: |
+          docker run --privileged --name openscap-scan $DOCKER_REPO:$GITHUB_REF_NAME /openscap_scan.sh
+
+      - name: 📤 Extract Scan Report
+        run: |
+          docker cp openscap-scan:/home/oscap-results.html ./oscap-results.html
+          docker cp openscap-scan:/home/oscap-results.xml ./oscap-results.xml
+
+      - name: 🔧 Run OpenSCAP Remediation
+        run: |
+          docker commit openscap-scan $DOCKER_REPO:$GITHUB_REF_NAME-remediated
+          docker run --privileged --name openscap-remediate $DOCKER_REPO:$GITHUB_REF_NAME-remediated /openscap_remediate.sh
+
+      - name: 📤 Extract Remediation Report
+        run: |
+          docker cp openscap-remediate:/home/oscap-results-remediated.html ./oscap-results-remediated.html
+
+#      - name: 📊 Upload Compliance Reports as Artifacts
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: openscap-reports-$GITHUB_REF_NAME
+#          path: |
+#            oscap-results.html
+#            oscap-results.xml
+#            oscap-results-remediated.html
+
+      - name: 🚀 Commit and Push Compliance Reports
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # Clone the compliance-reports branch into a temporary directory
+          git clone --branch compliance-reports --depth 1 https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} temp-compliance-reports || echo "Branch does not exist. Skipping clone."
+    
+          # Fetch all branches
+          git fetch origin
+    
+          if ! git show-ref --quiet refs/heads/compliance-reports; then
+            # If branch doesn't exist, create it
+            git checkout --orphan compliance-reports
+            git reset --hard
+            mkdir -p reports
+          else
+            # If branch exists, check it out and preserve existing content
+            git checkout compliance-reports
+            git pull origin compliance-reports || true
+          fi
+
+          # Copy the reports directory if it exists in the cloned branch
+          if [ -d temp-compliance-reports/reports ]; then
+            cp -r temp-compliance-reports/reports/* reports/
+          fi
+
+          ls -l temp-compliance-reports/reports/*
+
+          # Clean up the temporary directory
+          rm -rf temp-compliance-reports
+          rm -rf /usr/share/xml/scap/ssg/content
+    
+          # Ensure reports directory exists
+          mkdir -p reports/$GITHUB_REF_NAME
+    
+          # Move new reports
+          mv oscap-results.html reports/$GITHUB_REF_NAME/oscap-results.html
+          mv oscap-results.xml reports/$GITHUB_REF_NAME/oscap-results.xml
+          mv oscap-results-remediated.html reports/$GITHUB_REF_NAME/oscap-results-remediated.html
+
+          ls -l reports/*
+    
+          # Stage and commit
+          git add reports/
+          if git diff --cached --quiet; then
+            echo "No changes to commit in compliance reports."
+          else
+            git commit -m "Add OpenSCAP compliance reports for branch $GITHUB_REF_NAME"
+            git push -f origin compliance-reports
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🚀 Push Remediated Docker Image
+        run: |
+          echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USER }}" --password-stdin
+          docker tag $DOCKER_REPO:$GITHUB_REF_NAME-remediated $DOCKER_REPO:$GITHUB_REF_NAME
+          docker push $DOCKER_REPO:$GITHUB_REF_NAME
+
+  warewulf-docker-import:
+    runs-on: self-hosted
+    name: Import Docker image of a Slurm Node info WareWulf
+    needs: build-scan-remediate-push 
+
+    env:
+      DOCKER_REPO: ${{ vars.CONTAINER_IMAGE }}
+      GITHUB_SHA: ${{ github.sha }}
+      GITHUB_REF_NAME: ${{ github.ref_name }}   
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Set Environment Variables
+        run: |
+          IMAGE_NAME=$(echo "$DOCKER_REPO:$GITHUB_REF_NAME" | awk -F'/' '{print $2}' | awk -F':' '{print $1}')
+          if [ -z "$IMAGE_NAME" ]; then
+            IMAGE_NAME="slurm-node"
+          fi
+          echo "IMAGE_NAME=$IMAGE_NAME" >> $GITHUB_ENV
+          echo "SHORT_COMMIT_ID=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Pull Docker Image
+        run: |
+          echo "Pulling production container image..."
+          sudo docker pull $DOCKER_REPO:$GITHUB_REF_NAME
+
+      - name: Import Docker Image into Warewulf
+        run: |
+          echo "Importing Docker Image into Warewulf..."
+          sudo wwctl container import docker://$DOCKER_REPO:$GITHUB_REF_NAME $IMAGE_NAME-$GITHUB_REF_NAME-$SHORT_COMMIT_ID --force
+
+      - name: Import Kernel from Docker Image into Warewulf
+        run: |
+          echo "Importing Kernel from Docker Image into Warewulf..."
+          sudo wwctl kernel import -DC $IMAGE_NAME-$GITHUB_REF_NAME-$SHORT_COMMIT_ID || true
+
+      - name: Verify Import
+        run: |
+          echo "Verifying the imported container..."
+          sudo wwctl container list
