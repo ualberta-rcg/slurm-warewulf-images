@@ -147,6 +147,10 @@ RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
 
+# Copy all .deb files into the container
+RUN mkdir /slurm-debs
+COPY *.deb /slurm-debs/
+
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
