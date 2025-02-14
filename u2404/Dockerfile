@@ -74,9 +74,6 @@ RUN apt-get update && apt-get install -y \
     linux-modules-${KERNEL_VERSION} \
     # Build dependencies for NVIDIA driver. Keep these here.
     build-essential \
-    libtool \
-    zlib1g-dev \
-    liblua5.3-0 \
     pkg-config \
     xorg-dev \
     libx11-dev \
