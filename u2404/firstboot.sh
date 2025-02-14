@@ -164,7 +164,6 @@ rm -rf /slurm-debs
 mkdir -p /var/spool/slurmd
 chown -R slurm:slurm /var/spool/slurmd
 
-
 systemctl daemon-reload
 systemctl enable munge
 systemctl start munge
