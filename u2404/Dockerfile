@@ -20,6 +20,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     locales \
     net-tools \
+    gdisk \
     openssh-server \
     openssh-client \
     iproute2 \
