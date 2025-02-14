@@ -31,6 +31,11 @@ rm -f zabbix-release_latest_7.0+ubuntu24.04_all.deb
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -y
 apt-get install --install-recommends -y \
+    libpmix-dev \
+    libpmix2 \
+    libopenmpi-dev \
+    libopenmpi3 \
+    openmpi-bin \
     wget \
     curl \
     unzip \
@@ -44,10 +49,6 @@ apt-get install --install-recommends -y \
     gnupg \
     lsb-release \
     ca-certificates \
-    build-essential \
-    fakeroot \
-    devscripts \
-    equivs \
     rsync \
     cron \
     tzdata \
@@ -59,15 +60,8 @@ apt-get install --install-recommends -y \
     linux-image-generic \
     systemd \
     sudo \
-    libcurl4-openssl-dev \
-    libhwloc-dev \
     openmpi-bin \
-    libopenmpi-dev \
-    libnuma-dev \
     kmod \
-    libpmix-dev \
-    libevent-dev \
-    libxml2-dev \
     numactl \
     prometheus-node-exporter \
     htop \
@@ -92,48 +86,19 @@ apt-get install --install-recommends -y \
     netbase \
     ipmitool \
     rdma-core \
-    build-essential \
-    cmake \
-    libhwloc15 \
-    libtool \
-    liblua5.3-0 \
-    libnuma1 \
-    libpam0g \
-    librrd8 \
-    libyaml-0-2 \
-    libjson-c5 \
-    libhttp-parser2.9 \
-    libev4 \
-    libssl3 \
-    libcurl4 \
-    libbpf1 \
     libdbus-1-3 \
-    libfreeipmi17 \
-    libibumad3 \
-    libibmad5 \
     gettext \
     linux-headers-generic \
     pkg-config \
-    autoconf \
-    automake \
-    gcc \
-    make \
     python3 \
     python3-pip \
     python3-venv \
     python3-psutil \
     munge \
-    libmunge-dev \
-    libmunge2 \
-    libpmix-bin \
     rrdtool \
-    librrd-dev \
-    lua5.3 \
-    liblua5.3-dev \
     zabbix-agent \
     cvmfs \
     cvmfs-fuse3
-
 
 ln -sf /usr/bin/python3 /usr/local/bin/python3 
 ln -sf /usr/bin/pip3 /usr/local/bin/pip3 
@@ -217,7 +182,7 @@ cvmfs_config setup
 cvmfs_config probe
 
 # Jupyter-Lab Install. Jupyter Lab is Launched with the jupyter-lab command:
-pip3 install --no-input jupyterlab notebook ipykernel --break-system-packages 
+pip3 install --no-input jupyterhub jupyterlab batchspawner notebook ipykernel --break-system-packages 
 
 # Disable and cleanup
 systemctl disable firstboot.service
