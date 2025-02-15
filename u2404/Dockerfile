@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     locales \
     net-tools \
-    gdisk \
     openssh-server \
     openssh-client \
     iproute2 \
@@ -69,8 +68,9 @@ RUN apt-get update && apt-get install -y \
     rrdtool \
     lua5.3 \
     dkms \
-    ignition \
-    nfs-common \
+    ignition \   # Used by warewulf to partition disks (cvmfs cache, localscratch)
+    gdisk \      # Used by warewulf to parititon disks
+    nfs-common \ # To mount home directories from storage
     linux-image-${KERNEL_VERSION} \
     linux-headers-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION} \
