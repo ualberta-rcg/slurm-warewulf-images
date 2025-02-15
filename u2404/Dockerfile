@@ -70,6 +70,7 @@ RUN apt-get update && apt-get install -y \
     lua5.3 \
     dkms \
     ignition \
+    nfs-common \
     linux-image-${KERNEL_VERSION} \
     linux-headers-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION} \
