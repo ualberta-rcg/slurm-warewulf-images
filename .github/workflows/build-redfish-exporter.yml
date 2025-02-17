@@ -20,7 +20,7 @@ jobs:
 
       - name: Build Redfish Exporter
         run: |
-          sudo apt-get install make -y
+          sudo apt-get install make git -y
           git clone https://github.com/jenningsloy318/redfish_exporter.git
           cd redfish_exporter/ 
           make build
