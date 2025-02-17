@@ -143,6 +143,7 @@ COPY *.deb /slurm-debs/
 COPY firstboot.service /etc/systemd/system/
 COPY pcm-sensor-server.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
+COPY redfish_exporter /usr/sbin/
 RUN chmod +x /usr/local/sbin/firstboot.sh && \
     mkdir -p /etc/systemd/system/multi-user.target.wants && \
     ln -s /etc/systemd/system/firstboot.service /etc/systemd/system/multi-user.target.wants/firstboot.service || true
