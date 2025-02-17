@@ -68,10 +68,13 @@ RUN apt-get update && apt-get install -y \
     rrdtool \
     lua5.3 \
     dkms \
-    ignition \   # Used by warewulf to partition disks (cvmfs cache, localscratch)
-    gdisk \      # Used by warewulf to parititon disks
-    nfs-common \ # To mount home directories from storage
-    # Build dependencies for NVIDIA driver. Keep these here.
+    # Used by warewulf to partition disks (cvmfs cache, localscratch) \
+    ignition \
+    # Used by warewulf to parititon disks \
+    gdisk \
+    # To mount home directories from storage \
+    nfs-common \
+    # Build dependencies for NVIDIA driver. Keep these here. \
     linux-image-${KERNEL_VERSION} \
     linux-headers-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION} \
