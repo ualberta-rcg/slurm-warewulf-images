@@ -20,6 +20,7 @@ jobs:
 
       - name: Build Prometheus Slurm Exporter
         run: |
+          sudo apt-get install -y slurm-debs/*u2404.deb 
           sudo apt-get install make git -y
           git clone https://github.com/guilbaults/prometheus-slurm-exporter.git
           cd prometheus-slurm-exporter/ 
