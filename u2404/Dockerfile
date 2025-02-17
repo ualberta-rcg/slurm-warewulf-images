@@ -141,6 +141,7 @@ COPY *.deb /slurm-debs/
 
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
+COPY pcm-sensor-server.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
 RUN chmod +x /usr/local/sbin/firstboot.sh && \
     mkdir -p /etc/systemd/system/multi-user.target.wants && \
