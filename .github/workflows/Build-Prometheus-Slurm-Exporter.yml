@@ -1,0 +1,41 @@
+name: Build Prometheus Slurm Exporter
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  build-exporter:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensure full history for commits
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Build Prometheus Slurm Exporter
+        run: |
+          sudo apt-get install make git -y
+          git clone https://github.com/guilbaults/prometheus-slurm-exporter.git
+          cd prometheus-slurm-exporter/ 
+          make build
+          
+          # Create directory and copy binary
+          sudo cp build/prometheus-slurm-exporter $GITHUB_WORKSPACE/u2404/prometheus-slurm-exporter
+
+      - name: Commit and Push Binary
+        run: |
+          cd $GITHUB_WORKSPACE
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add u2404/
+          git commit -m "Add built redfish_exporter for Ubuntu 24.04"
+          git push origin main # Change to your branch if needed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
