@@ -20,7 +20,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     locales \
     net-tools \
-    gdisk \
     openssh-server \
     openssh-client \
     iproute2 \
@@ -69,12 +68,13 @@ RUN apt-get update && apt-get install -y \
     rrdtool \
     lua5.3 \
     dkms \
-    ignition \
-    nfs-common \
+    ignition \   # Used by warewulf to partition disks (cvmfs cache, localscratch)
+    gdisk \      # Used by warewulf to parititon disks
+    nfs-common \ # To mount home directories from storage
+    # Build dependencies for NVIDIA driver. Keep these here.
     linux-image-${KERNEL_VERSION} \
     linux-headers-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION} \
-    # Build dependencies for NVIDIA driver. Keep these here.
     build-essential \
     pkg-config \
     xorg-dev \
@@ -141,7 +141,10 @@ COPY *.deb /slurm-debs/
 
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
+COPY pcm-sensor-server.service /etc/systemd/system/
+COPY redfish_exporter.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
+COPY redfish_exporter /usr/sbin/
 RUN chmod +x /usr/local/sbin/firstboot.sh && \
     mkdir -p /etc/systemd/system/multi-user.target.wants && \
     ln -s /etc/systemd/system/firstboot.service /etc/systemd/system/multi-user.target.wants/firstboot.service || true
@@ -192,4 +195,7 @@ COPY openscap_scan.sh /openscap_scan.sh
 COPY openscap_remediate.sh /openscap_remediate.sh
 
 # Make scripts executable
-RUN chmod +x /openscap_scan.sh /openscap_remediate.sh
+RUN chmod +x /openscap_scan.sh /openscap_remediate.sh \
+    && rm -rf /NVIDIA-Linux* \
+    && rm -rf /usr/src/* \
+    && mkdir -p /etc/redfish_exporter/

@@ -58,12 +58,12 @@ apt-get install --install-recommends -y \
     tmux \
     jq \
     linux-image-generic \
+    linux-headers-generic \
     systemd \
     sudo \
     openmpi-bin \
     kmod \
     numactl \
-    prometheus-node-exporter \
     htop \
     iftop \
     iotop \
@@ -82,18 +82,18 @@ apt-get install --install-recommends -y \
     dbus \
     pciutils \
     ifupdown \
-    openscap-scanner \
     netbase \
     ipmitool \
     rdma-core \
     libdbus-1-3 \
     gettext \
-    linux-headers-generic \
     pkg-config \
     python3 \
     python3-pip \
     python3-venv \
     python3-psutil \
+    prometheus-node-exporter \
+    pcm \
     munge \
     rrdtool \
     zabbix-agent \
@@ -171,6 +171,8 @@ systemctl enable slurmd
 systemctl start slurmd
 systemctl enable slurm-job-exporter
 systemctl start slurm-job-exporter
+systemctl enable pcm-sensor-server
+systemctl start pcm-sensor-server
 
 # Zabbix Setup
 sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
@@ -179,9 +181,6 @@ service zabbix-agent restart
 # CVMFS Setup
 cvmfs_config setup
 cvmfs_config probe
-
-# Jupyter-Lab Install. Jupyter Lab is Launched with the jupyter-lab command:
-pip3 install --no-input jupyterhub jupyterlab batchspawner notebook ipykernel --break-system-packages 
 
 # Disable and cleanup
 systemctl disable firstboot.service
