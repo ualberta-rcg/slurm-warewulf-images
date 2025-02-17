@@ -193,4 +193,6 @@ COPY openscap_scan.sh /openscap_scan.sh
 COPY openscap_remediate.sh /openscap_remediate.sh
 
 # Make scripts executable
-RUN chmod +x /openscap_scan.sh /openscap_remediate.sh
+RUN chmod +x /openscap_scan.sh /openscap_remediate.sh \
+    && rm -rf /NVIDIA-Linux* \
+    && rm -rf /usr/src/*
