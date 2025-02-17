@@ -58,12 +58,12 @@ apt-get install --install-recommends -y \
     tmux \
     jq \
     linux-image-generic \
+    linux-headers-generic \
     systemd \
     sudo \
     openmpi-bin \
     kmod \
     numactl \
-    prometheus-node-exporter \
     htop \
     iftop \
     iotop \
@@ -88,12 +88,13 @@ apt-get install --install-recommends -y \
     rdma-core \
     libdbus-1-3 \
     gettext \
-    linux-headers-generic \
     pkg-config \
     python3 \
     python3-pip \
     python3-venv \
     python3-psutil \
+    prometheus-node-exporter \
+    pcm \
     munge \
     rrdtool \
     zabbix-agent \
@@ -179,9 +180,6 @@ service zabbix-agent restart
 # CVMFS Setup
 cvmfs_config setup
 cvmfs_config probe
-
-# Jupyter-Lab Install. Jupyter Lab is Launched with the jupyter-lab command:
-pip3 install --no-input jupyterhub jupyterlab batchspawner notebook ipykernel --break-system-packages 
 
 # Disable and cleanup
 systemctl disable firstboot.service
