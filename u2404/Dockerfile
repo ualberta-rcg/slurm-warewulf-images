@@ -142,6 +142,7 @@ COPY *.deb /slurm-debs/
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
 COPY pcm-sensor-server.service /etc/systemd/system/
+COPY redfish_exporter.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
 COPY redfish_exporter /usr/sbin/
 RUN chmod +x /usr/local/sbin/firstboot.sh && \
@@ -196,4 +197,5 @@ COPY openscap_remediate.sh /openscap_remediate.sh
 # Make scripts executable
 RUN chmod +x /openscap_scan.sh /openscap_remediate.sh \
     && rm -rf /NVIDIA-Linux* \
-    && rm -rf /usr/src/*
+    && rm -rf /usr/src/* \
+    && mkdir -p /etc/redfish_exporter/
