@@ -5,7 +5,6 @@ After=network-online.target
 
 [Service]
 Type=simple
-Environment="PCM_KEEP_NMI_WATCHDOG=1"
 ExecStartPre=/sbin/modprobe msr
 ExecStart=/usr/sbin/pcm-sensor-server
 Restart=on-failure
