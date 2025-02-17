@@ -5,6 +5,8 @@ After=network-online.target
 
 [Service]
 Type=simple
+User=root
+Group=root
 ExecStartPre=/sbin/modprobe msr
 ExecStart=/usr/sbin/pcm-sensor-server
 Restart=on-failure
