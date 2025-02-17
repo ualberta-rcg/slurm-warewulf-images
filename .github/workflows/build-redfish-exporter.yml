@@ -20,10 +20,12 @@ jobs:
 
       - name: Build Redfish Exporter
         run: |
+          apt-get install make
+          git clone https://github.com/jenningsloy318/redfish_exporter.git
+          cd redfish_exporter/ 
           make build
           
           # Create directory and copy binary
-          sudo mkdir -p $GITHUB_WORKSPACE/u2404
           sudo cp build/redfish_exporter $GITHUB_WORKSPACE/u2404/redfish_exporter
 
       - name: Commit and Push Binary
