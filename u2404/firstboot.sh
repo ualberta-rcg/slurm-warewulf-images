@@ -82,7 +82,6 @@ apt-get install --install-recommends -y \
     dbus \
     pciutils \
     ifupdown \
-    openscap-scanner \
     netbase \
     ipmitool \
     rdma-core \
@@ -172,6 +171,8 @@ systemctl enable slurmd
 systemctl start slurmd
 systemctl enable slurm-job-exporter
 systemctl start slurm-job-exporter
+systemctl enable pcm-sensor-server
+systemctl start pcm-sensor-server
 
 # Zabbix Setup
 sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
