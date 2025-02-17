@@ -71,10 +71,10 @@ RUN apt-get update && apt-get install -y \
     ignition \   # Used by warewulf to partition disks (cvmfs cache, localscratch)
     gdisk \      # Used by warewulf to parititon disks
     nfs-common \ # To mount home directories from storage
+    # Build dependencies for NVIDIA driver. Keep these here.
     linux-image-${KERNEL_VERSION} \
     linux-headers-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION} \
-    # Build dependencies for NVIDIA driver. Keep these here.
     build-essential \
     pkg-config \
     xorg-dev \
