@@ -1,0 +1,15 @@
+[Unit]
+Description=Redfish Exporter for Hardware Monitoring
+Wants=network-online.target
+After=network-online.target slurmd.service
+
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/sbin/redfish_exporter --config.file=/etc/redfish_exporter/config.yml
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
