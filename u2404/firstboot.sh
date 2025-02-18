@@ -176,7 +176,7 @@ git clone https://github.com/guilbaults/prometheus-slurm-exporter.git
 cd prometheus-slurm-exporter
 make build
 cp bin/prometheus-slurm-exporter /usr/sbin/
-#rm -rf /opt/prometheus-slurm-exporter
+rm -rf /opt/prometheus-slurm-exporter
 
 mkdir -p /var/spool/slurmd
 chown -R slurm:slurm /var/spool/slurmd
@@ -194,9 +194,6 @@ systemctl enable pcm-sensor-server
 systemctl start pcm-sensor-server
 systemctl enable prometheus-slurm-exporter
 systemctl start prometheus-slurm-exporter
-
-# Zabbix Setup
-sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
 service zabbix-agent restart
 
 # CVMFS Setup
@@ -212,6 +209,7 @@ rm -rf /*.sh
 rm -rf /*.xml
 rm -rf /usr/src/*
 rm -rf /slurm-debs
+rm -rf /tmp/*
 
 apt-get remove make cmake golang -y
 apt autoremove -y
@@ -219,5 +217,6 @@ apt autoclean -y
 
 rm /etc/systemd/system/firstboot.service
 #rm -- "$0"
+systemctl daemon-reload
 
 echo "First boot configuration complete"
