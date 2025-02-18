@@ -171,18 +171,6 @@ make build
 cp bin/prometheus-slurm-exporter /usr/sbin/
 #rm -rf /opt/prometheus-slurm-exporter
 
-# Install Nvidia EnRoot
-cd /tmp
-curl -fSsL https://github.com/NVIDIA/enroot/releases/download/v3.4.1/enroot_3.4.1-1_$(dpkg --print-architecture).deb -o enroot.deb
-apt-get install -y ./enroot.deb 
-rm enroot.deb
-
-# Install Nvidia Pyxis
-cd /opt
-git clone https://github.com/NVIDIA/pyxis
-cd pyxis
-make install
-
 mkdir -p /var/spool/slurmd
 chown -R slurm:slurm /var/spool/slurmd
 
