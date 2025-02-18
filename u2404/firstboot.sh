@@ -80,6 +80,8 @@ apt-get install --install-recommends -y \
     traceroute \
     tcpdump \
     apt-utils \
+    libnccl2 \
+    libnccl-dev \
     systemd-sysv \
     dbus \
     pciutils \
