@@ -164,6 +164,13 @@ else
 fi
 
 # Setup Prometheus Slurm Exporter
+# Create temporary directories for Go
+export GOPATH=/tmp/go
+export GOMODCACHE=$GOPATH/pkg/mod
+export PATH=$GOPATH/bin:$PATH
+
+mkdir -p $GOPATH $GOMODCACHE
+
 cd /opt
 git clone https://github.com/guilbaults/prometheus-slurm-exporter.git
 cd prometheus-slurm-exporter
