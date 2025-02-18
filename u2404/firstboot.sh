@@ -37,6 +37,7 @@ apt-get install --install-recommends -y \
     libopenmpi3 \
     openmpi-bin \
     golang \
+    rsyslog \
     make \
     wget \
     curl \
@@ -52,7 +53,6 @@ apt-get install --install-recommends -y \
     lsb-release \
     ca-certificates \
     rsync \
-    cron \
     tzdata \
     tree \
     nano \
@@ -167,9 +167,12 @@ git clone https://github.com/guilbaults/prometheus-slurm-exporter.git
 cd prometheus-slurm-exporter
 make build
 cp bin/prometheus-slurm-exporter /usr/sbin/
+#rm -rf /opt/prometheus-slurm-exporter
 
 mkdir -p /var/spool/slurmd
 chown -R slurm:slurm /var/spool/slurmd
+
+timedatectl set-timezone America/Edmonton
 
 systemctl daemon-reload
 systemctl enable munge
@@ -200,6 +203,10 @@ rm -rf /*.sh
 rm -rf /*.xml
 rm -rf /usr/src/*
 rm -rf /slurm-debs
+
+apt-get remove make cmake golang -y
+apt autoremove -y
+apt autoclean -y
 
 rm /etc/systemd/system/firstboot.service
 #rm -- "$0"

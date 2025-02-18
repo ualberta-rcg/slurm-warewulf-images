@@ -19,6 +19,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     unzip \
     locales \
+    ansible \
     net-tools \
     openssh-server \
     openssh-client \
