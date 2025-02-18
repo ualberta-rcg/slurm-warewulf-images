@@ -37,6 +37,7 @@ apt-get install --install-recommends -y \
     libopenmpi3 \
     openmpi-bin \
     golang \
+    rsyslog \
     make \
     wget \
     curl \
@@ -52,7 +53,6 @@ apt-get install --install-recommends -y \
     lsb-release \
     ca-certificates \
     rsync \
-    cron \
     tzdata \
     tree \
     nano \
@@ -203,6 +203,10 @@ rm -rf /*.sh
 rm -rf /*.xml
 rm -rf /usr/src/*
 rm -rf /slurm-debs
+
+apt-get remove make cmake golang -y
+apt autoremove -y
+apt autoclean -y
 
 rm /etc/systemd/system/firstboot.service
 #rm -- "$0"
