@@ -194,6 +194,9 @@ systemctl enable pcm-sensor-server
 systemctl start pcm-sensor-server
 systemctl enable prometheus-slurm-exporter
 systemctl start prometheus-slurm-exporter
+
+# Zabbix Setup
+sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
 service zabbix-agent restart
 
 # CVMFS Setup
