@@ -36,6 +36,8 @@ apt-get install --install-recommends -y \
     libopenmpi-dev \
     libopenmpi3 \
     openmpi-bin \
+    golang \
+    make \
     wget \
     curl \
     unzip \
@@ -159,7 +161,12 @@ else
     echo "No .deb packages to install."
 fi
 
-rm -rf /slurm-debs
+# Setup Prometheus Slurm Exporter
+cd /opt
+git clone https://github.com/guilbaults/prometheus-slurm-exporter.git
+cd prometheus-slurm-exporter
+make build
+cp bin/prometheus-slurm-exporter /usr/sbin/
 
 mkdir -p /var/spool/slurmd
 chown -R slurm:slurm /var/spool/slurmd
@@ -173,6 +180,8 @@ systemctl enable slurm-job-exporter
 systemctl start slurm-job-exporter
 systemctl enable pcm-sensor-server
 systemctl start pcm-sensor-server
+systemctl enable prometheus-slurm-exporter
+systemctl start prometheus-slurm-exporter
 
 # Zabbix Setup
 sed 's#Server=.*#Server=192.168.1.0/24#' -i /etc/zabbix/zabbix_agentd.conf
@@ -190,6 +199,7 @@ rm -rf /NVIDIA-Linux*
 rm -rf /*.sh
 rm -rf /*.xml
 rm -rf /usr/src/*
+rm -rf /slurm-debs
 
 rm /etc/systemd/system/firstboot.service
 #rm -- "$0"
