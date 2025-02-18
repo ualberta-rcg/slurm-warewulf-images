@@ -7,7 +7,7 @@ After=network-online.target slurmd.service
 Type=simple
 User=root
 Group=root
-ExecStart=/usr/sbin/bin/prometheus-slurm-exporter 
+ExecStart=/usr/sbin/prometheus-slurm-exporter 
 Restart=always
 RestartSec=30
 
