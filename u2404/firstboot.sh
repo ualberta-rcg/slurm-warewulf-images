@@ -167,9 +167,12 @@ git clone https://github.com/guilbaults/prometheus-slurm-exporter.git
 cd prometheus-slurm-exporter
 make build
 cp bin/prometheus-slurm-exporter /usr/sbin/
+#rm -rf /opt/prometheus-slurm-exporter
 
 mkdir -p /var/spool/slurmd
 chown -R slurm:slurm /var/spool/slurmd
+
+timedatectl set-timezone America/Edmonton
 
 systemctl daemon-reload
 systemctl enable munge
