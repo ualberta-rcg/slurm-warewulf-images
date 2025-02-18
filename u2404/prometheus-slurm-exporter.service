@@ -1,1 +1,15 @@
+[Unit]
+Description=Prometheus Slurm Exporter
+Wants=network-online.target
+After=network-online.target slurmd.service
 
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/sbin/bin/prometheus-slurm-exporter 
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
