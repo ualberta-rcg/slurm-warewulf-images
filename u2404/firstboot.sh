@@ -164,19 +164,19 @@ else
 fi
 
 # Setup Prometheus Slurm Exporter
-# Create temporary directories for Go
+export HOME=/tmp
 export GOPATH=/tmp/go
 export GOMODCACHE=$GOPATH/pkg/mod
+export GOCACHE=/tmp/go/cache
 export PATH=$GOPATH/bin:$PATH
-
-mkdir -p $GOPATH $GOMODCACHE
+mkdir -p $GOPATH $GOMODCACHE $GOCACHE
 
 cd /opt
 git clone https://github.com/guilbaults/prometheus-slurm-exporter.git
 cd prometheus-slurm-exporter
 make build
 cp bin/prometheus-slurm-exporter /usr/sbin/
-#rm -rf /opt/prometheus-slurm-exporter
+rm -rf /opt/prometheus-slurm-exporter
 
 mkdir -p /var/spool/slurmd
 chown -R slurm:slurm /var/spool/slurmd
@@ -212,6 +212,7 @@ rm -rf /*.sh
 rm -rf /*.xml
 rm -rf /usr/src/*
 rm -rf /slurm-debs
+rm -rf /tmp/*
 
 apt-get remove make cmake golang -y
 apt autoremove -y
@@ -219,5 +220,6 @@ apt autoclean -y
 
 rm /etc/systemd/system/firstboot.service
 #rm -- "$0"
+systemctl daemon-reload
 
 echo "First boot configuration complete"
