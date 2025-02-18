@@ -146,6 +146,7 @@ COPY *.deb /slurm-debs/
 COPY firstboot.service /etc/systemd/system/
 COPY pcm-sensor-server.service /etc/systemd/system/
 COPY redfish_exporter.service /etc/systemd/system/
+COPY prometheus-slurm-exporter.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
 COPY redfish_exporter /usr/sbin/
 RUN chmod +x /usr/local/sbin/firstboot.sh && \
