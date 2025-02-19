@@ -146,7 +146,7 @@ COPY *.deb /slurm-debs/
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
 COPY pcm-sensor-server.service /etc/systemd/system/
-COPY redfish_exporter.service /etc/systemd/system/
+COPY redfish-exporter.service /etc/systemd/system/
 COPY prometheus-slurm-exporter.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
 COPY redfish_exporter /usr/sbin/
