@@ -9,7 +9,7 @@ echo "Starting first boot configuration..."
 DEBIAN_FRONTEND=noninteractive
 
 # Setup System
-for playbook in $(ls /etc/ansible/playbook/*.yaml | sort); do
+for playbook in $(ls /etc/ansible/playbooks/*.yaml | sort); do
     ansible-playbook "$playbook"
 done
 
