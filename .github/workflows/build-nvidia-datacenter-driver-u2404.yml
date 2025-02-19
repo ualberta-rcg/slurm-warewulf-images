@@ -48,11 +48,6 @@ jobs:
           cd DCGM
           git checkout ${{ github.event.inputs.dcgm_branch }}
 
-      - name: Build DCGM build image
-        run: |
-          cd DCGM/dcgmbuild
-          sudo ./build.sh
-
       - name: Build DCGM debian package
         run: |
           cd DCGM
