@@ -139,9 +139,14 @@ RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
 
-# Copy all .deb files into the container
+# Copy Slurm Deb files into the container
 RUN mkdir /slurm-debs
 COPY *.deb /slurm-debs/
+
+# Download Nvidia Datacenter Manager Deb file into the container
+RUN mkdir /nvidia-debs
+RUN wget -O /nvidia-debs/datacenter-gpu-manager_3.3.9_amd64.deb \
+    https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/datacenter-gpu-manager_3.3.9_amd64.deb
 
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
