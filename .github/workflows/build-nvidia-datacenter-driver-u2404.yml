@@ -1,1 +1,62 @@
 
+name: Build NVIDIA Data Center GPU Manager
+
+on:
+  workflow_dispatch: # Manual trigger only
+
+jobs:
+  build-exporter:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ensure full history for commits
+
+      - name: Install prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            git \
+            git-lfs \
+            coreutils \
+            gawk \
+            util-linux \
+            docker.io
+
+      - name: Enable Docker service
+        run: |
+          sudo systemctl start docker
+          sudo systemctl enable docker
+
+      - name: Clone DCGM repository
+        run: |
+          git clone https://github.com/NVIDIA/DCGM.git
+          cd DCGM
+          git checkout ${{ github.event.inputs.dcgm_branch }}
+
+      - name: Build DCGM build image
+        run: |
+          cd DCGM/dcgmbuild
+          sudo ./build.sh
+
+      - name: Build DCGM debian package
+        run: |
+          cd DCGM
+          sudo ./build.sh -r --deb      
+          for file in DCGM/_out/Linux-amd64-release/*.deb; do
+            newname=$(echo $(basename "$file") | sed 's/\.deb$/_u2404.deb/')
+            cp "$file" "$GITHUB_WORKSPACE/u2404/$newname"
+          done
+          
+      - name: Commit and Push Binary
+        run: |
+          cd $GITHUB_WORKSPACE
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add u2404/
+          git commit -m "Add built redfish_exporter for Ubuntu 24.04"
+          git push origin main # Change to your branch if needed
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
