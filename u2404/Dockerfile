@@ -6,8 +6,8 @@ ENV LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH:-}
 ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-#ENV KERNEL_VERSION=6.11.0-14-generic
-ENV KERNEL_VERSION=6.8.0-51-generic
+#ENV KERNEL_VERSION=6.8.0-51-generic
+ENV KERNEL_VERSION=6.8.0-55-generic
 
 # Temporarily disable service configuration
 RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
