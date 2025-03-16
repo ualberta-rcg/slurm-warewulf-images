@@ -5,6 +5,7 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
+EnvironmentFile=-/etc/environment
 ExecStartPre=/bin/sleep 15
 ExecStart=/usr/local/sbin/firstboot.sh
 RemainAfterExit=yes
