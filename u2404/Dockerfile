@@ -79,6 +79,7 @@ RUN apt-get update && apt-get install -y \
     linux-image-${KERNEL_VERSION} \
     linux-headers-${KERNEL_VERSION} \
     linux-modules-${KERNEL_VERSION} \
+    linux-modules-extra-${KERNEL_VERSION} \
     build-essential \
     pkg-config \
     xorg-dev \
