@@ -182,8 +182,9 @@ RUN apt-get purge -y \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
     /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \ 
     /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d && \
+    mkdir -p /local/home && \
     groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
-    groupadd wwgroup && useradd -m -g slurm -s /bin/bash wwuser && \
+    groupadd wwgroup && useradd -D /local/home -m -g slurm -s /bin/bash wwuser && \
     echo "wwuser:wwpassword" | chpasswd && \
     usermod -aG sudo wwuser
 
