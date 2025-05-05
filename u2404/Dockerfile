@@ -92,7 +92,7 @@ RUN apt-get update && apt-get install -y \
 # Create build directory
 # Download the NVIDIA driver
 RUN mkdir -p /build && cd /build && \
-    echo "📥 Downloading NVIDIA driver ${NVIDIA_DRIVER_VERSION}..." \
+    echo "📥 Downloading NVIDIA driver ${NVIDIA_DRIVER_VERSION}..." && \
     wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
     echo "📦 Extracting driver..." && \
     chmod +x /tmp/NVIDIA.run && \
