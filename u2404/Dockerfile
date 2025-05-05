@@ -100,12 +100,10 @@ RUN mkdir -p /build && cd /build && \
     cd /build/nvidia
 
 # Create fake systemctl for environments without systemd
-RUN mkdir -p /tmp/bin && cat > /tmp/bin/systemctl << 'EOF'
-#!/bin/sh
-# Fake systemctl that does nothing but returns success
-exit 0
-EOF
-
+RUN mkdir -p /tmp/bin && \
+    echo '#!/bin/sh\nexit 0' > /tmp/bin/systemctl && \
+    chmod +x /tmp/bin/systemctl && \
+    ln -sf /tmp/bin/systemctl /usr/bin/systemctl
 
 # Full installation with kernel modules
 RUN chmod +x /tmp/bin/systemctl && \
@@ -139,18 +137,15 @@ RUN mkdir -p /dev/nvidia && \
     [ -e /dev/nvidia-uvm ] || mknod -m 666 /dev/nvidia-uvm c 243 0 && \
     [ -e /dev/nvidia-uvm-tools ] || mknod -m 666 /dev/nvidia-uvm-tools c 243 1
 
-# Create /etc/X11/xorg.conf if it doesn't exist
+# Create minimal /etc/X11/xorg.conf if it doesn't exist
 RUN mkdir -p /etc/X11 && \
-    if [ ! -f /etc/X11/xorg.conf ]; then
-      echo "Creating minimal xorg.conf..." && \
-      cat > /etc/X11/xorg.conf << 'EOF'
-    Section "Device"
-        Identifier     "Device0"
-        Driver         "nvidia"
-        VendorName     "NVIDIA Corporation"
-    EndSection
-    EOF
-    fi
+    [ ! -f /etc/X11/xorg.conf ] && echo "Creating minimal xorg.conf..." && \
+    printf '%s\n' \
+    'Section "Device"' \
+    '    Identifier     "Device0"' \
+    '    Driver         "nvidia"' \
+    '    VendorName     "NVIDIA Corporation"' \
+    'EndSection' > /etc/X11/xorg.conf
 
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
