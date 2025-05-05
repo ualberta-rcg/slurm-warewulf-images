@@ -189,13 +189,16 @@ RUN apt-get purge -y \
     
 RUN apt-get autoremove -y && \
     apt-get clean && \
-    apt-get install openscap-scanner netplan.io -y && \
+    apt-get install -y openscap-scanner netplan.io && \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
-    /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \ 
-    /usr/share/locale /usr/share/info && rm /usr/sbin/policy-rc.d && \
+           /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \
+           /usr/share/locale /usr/share/info && \
+    rm /usr/sbin/policy-rc.d && \
     mkdir -p /local/home && \
-    groupadd -r slurm && useradd -r -g slurm -s /bin/false slurm && \
-    groupadd wwgroup && useradd -D /local/home -m -g slurm -s /bin/bash wwuser && \
+    groupadd -r slurm && \
+    useradd -r -g slurm -s /bin/false slurm && \
+    groupadd wwgroup && \
+    useradd -m -d /local/home/wwuser -g slurm -s /bin/bash wwuser && \
     echo "wwuser:wwpassword" | chpasswd && \
     usermod -aG sudo wwuser
 
