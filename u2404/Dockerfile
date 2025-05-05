@@ -7,7 +7,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
 #ENV KERNEL_VERSION=6.8.0-51-generic
-ENV KERNEL_VERSION=6.8.0-58-generic
+ENV KERNEL_VERSION=6.8.0-59-generic
+ENV NVIDIA_DRIVER_VERSION=570.133.07
 
 # Temporarily disable service configuration
 RUN echo '#!/bin/sh\nexit 101' > /usr/sbin/policy-rc.d && chmod +x /usr/sbin/policy-rc.d
@@ -88,64 +89,68 @@ RUN apt-get update && apt-get install -y \
     libglvnd-dev && \
     ln -s /usr/src/linux-headers-${KERNEL_VERSION} /lib/modules/${KERNEL_VERSION}/build
 
-#https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run
-# NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}')
-# Combine NVIDIA driver download, installation, and DKMS setup
-RUN NVIDIA_DRIVER_VERSION=570.133.07 && \
-    echo "Using NVIDIA driver version: $NVIDIA_DRIVER_VERSION" && \
-    wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/570.133.07/NVIDIA-Linux-x86_64-570.133.07.run -O /tmp/NVIDIA.run && \
+# Create build directory
+# Download the NVIDIA driver
+RUN mkdir -p /build && cd /build && \
+    echo "📥 Downloading NVIDIA driver ${NVIDIA_DRIVER_VERSION}..." \
+    wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
+    echo "📦 Extracting driver..." && \
     chmod +x /tmp/NVIDIA.run && \
-    # Extract the NVIDIA driver sources
-    sh /tmp/NVIDIA.run -x -s --no-kernel-module && \
-    cd NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION} && \
-    # Create DKMS source directory
-    mkdir -p /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
-    cp -r kernel/* /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
-    # Install the driver without kernel modules
-    /tmp/NVIDIA.run --no-systemd \
-                      --no-kernel-module \
-                      --silent \
-                      --x-prefix=/usr \
-                      --x-module-path=/usr/lib/xorg/modules \
-                      --x-library-path=/usr/lib \
-                      --kernel-source-path=/lib/modules/${KERNEL_VERSION}/build
-                      
-RUN NVIDIA_DRIVER_VERSION=570.133.07 && \
-    DKMS_SRC_DIR="/usr/src/nvidia-${NVIDIA_DRIVER_VERSION}" && \
-    mkdir -p "$DKMS_SRC_DIR" && \
-    cp -r /NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}/kernel/* "$DKMS_SRC_DIR/" && \
-    cat > "$DKMS_SRC_DIR/dkms.conf" <<EOF
-PACKAGE_NAME="nvidia"
-PACKAGE_VERSION="${NVIDIA_DRIVER_VERSION}"
-CLEAN="make clean"
-MAKE="make -j$(nproc) NV_EXCLUDE_BUILD_MODULES='' KERNEL_UNAME=\${kernelver} modules"
-BUILT_MODULE_NAME[0]="nvidia"
-BUILT_MODULE_NAME[1]="nvidia-uvm"
-BUILT_MODULE_NAME[2]="nvidia-modeset"
-BUILT_MODULE_NAME[3]="nvidia-drm"
-DEST_MODULE_LOCATION[0]="/kernel/drivers/video"
-DEST_MODULE_LOCATION[1]="/kernel/drivers/video"
-DEST_MODULE_LOCATION[2]="/kernel/drivers/video"
-DEST_MODULE_LOCATION[3]="/kernel/drivers/video"
-AUTOINSTALL="yes"
+    /tmp/NVIDIA.run --extract-only --target /build/nvidia && \
+    cd /build/nvidia
+
+# Create fake systemctl for environments without systemd
+RUN mkdir -p /tmp/bin && cat > /tmp/bin/systemctl << 'EOF'
+#!/bin/sh
+# Fake systemctl that does nothing but returns success
+exit 0
 EOF
 
-RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
-    NVIDIA_DRIVER_VERSION=570.133.07 && \
-    dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} || echo "⚠️ DKMS add failed, continuing..." && \
-    dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || echo "⚠️ DKMS build failed, continuing..." && \
-    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || echo "⚠️ DKMS install failed, continuing..." && \
-    rm -rf /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
-    echo "nvidia" >> /etc/modules && echo "nvidia_uvm" >> /etc/modules
 
-#RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
-#    NVIDIA_DRIVER_VERSION=570.133.07 && \
-#    dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} || { echo "Failed to add DKMS module."; exit 1; } && \
-#    dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || { echo "Failed to build DKMS module."; exit 1; } && \
-#    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || { echo "Failed to install DKMS module."; exit 1; } && \
-#    echo "NVIDIA driver successfully installed." && \
-#    rm -rf /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
-#    echo "nvidia" >> /etc/modules && echo "nvidia_uvm" >> /etc/modules
+# Full installation with kernel modules
+RUN chmod +x /tmp/bin/systemctl && \
+    export PATH="/tmp/bin:$PATH" && \
+    ./nvidia-installer --accept-license \
+                       --no-questions \
+                       --silent \
+                       --no-backup \
+                       --no-x-check \
+                       --no-nouveau-check \
+                       --no-systemd \
+                       --no-check-for-alternate-installs \
+                       --kernel-name=${KERNEL_VERSION} \
+                       --kernel-source-path=/lib/modules/${KERNEL_VERSION}/build \
+                       --x-prefix=/usr \
+                       --x-module-path=/usr/lib/xorg/modules \
+                       --x-library-path=/usr/lib 
+
+# Create module configuration to load at boot
+# Setup CUDA-specific UVM device nodes
+RUN mkdir -p /etc/modules-load.d/ && \
+    echo "nvidia" > /etc/modules-load.d/nvidia.conf && \
+    echo "nvidia_uvm" >> /etc/modules-load.d/nvidia.conf && \
+    echo "nvidia_drm" >> /etc/modules-load.d/nvidia.conf && \
+    echo "nvidia_modeset" >> /etc/modules-load.d/nvidia.conf
+
+# Create NVIDIA device nodes (if they don't exist)
+RUN mkdir -p /dev/nvidia && \
+    [ -e /dev/nvidia0 ] || mknod -m 666 /dev/nvidia0 c 195 0 && \
+    [ -e /dev/nvidiactl ] || mknod -m 666 /dev/nvidiactl c 195 255 && \
+    [ -e /dev/nvidia-uvm ] || mknod -m 666 /dev/nvidia-uvm c 243 0 && \
+    [ -e /dev/nvidia-uvm-tools ] || mknod -m 666 /dev/nvidia-uvm-tools c 243 1
+
+# Create /etc/X11/xorg.conf if it doesn't exist
+RUN mkdir -p /etc/X11 && \
+    if [ ! -f /etc/X11/xorg.conf ]; then
+      echo "Creating minimal xorg.conf..." && \
+      cat > /etc/X11/xorg.conf << 'EOF'
+    Section "Device"
+        Identifier     "Device0"
+        Driver         "nvidia"
+        VendorName     "NVIDIA Corporation"
+    EndSection
+    EOF
+    fi
 
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
