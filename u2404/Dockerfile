@@ -106,7 +106,7 @@ RUN mkdir -p /tmp/bin && \
     ln -sf /tmp/bin/systemctl /usr/bin/systemctl
 
 # Full installation with kernel modules
-RUN chmod +x /tmp/bin/systemctl && \
+RUN cd /build/nvidia && chmod +x /tmp/bin/systemctl && \
     export PATH="/tmp/bin:$PATH" && \
     ./nvidia-installer --accept-license \
                        --no-questions \
