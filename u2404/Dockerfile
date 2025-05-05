@@ -91,7 +91,7 @@ RUN apt-get update && apt-get install -y \
 
 # Create build directory
 # Download the NVIDIA driver
-RUN mkdir -p /build && cd /build && \
+RUN mkdir /slurm-debs && mkdir -p /build && cd /build && \
     echo "📥 Downloading NVIDIA driver ${NVIDIA_DRIVER_VERSION}..." && \
     wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
     echo "📦 Extracting driver..." && \
@@ -147,11 +147,14 @@ RUN mkdir -p /etc/X11 && \
     '    VendorName     "NVIDIA Corporation"' \
     'EndSection' > /etc/X11/xorg.conf
 
+# Remove fake systemctl after use
+RUN rm -f /usr/bin/systemctl && \
+    rm -rf /tmp/bin
+    
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
 
 # Copy Slurm Deb files into the container
-RUN mkdir /slurm-debs
 COPY *.deb /slurm-debs/
 
 # Download Nvidia Datacenter Manager Deb file into the container
