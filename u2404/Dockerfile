@@ -110,7 +110,7 @@ RUN NVIDIA_DRIVER_VERSION=570.133.07 && \
                       --x-library-path=/usr/lib \
                       --kernel-source-path=/lib/modules/${KERNEL_VERSION}/build
                       
-RUN NVIDIA_DRIVER_VERSION=${NVIDIA_DRIVER_VERSION} && \
+RUN NVIDIA_DRIVER_VERSION=570.133.07 && \
     DKMS_SRC_DIR="/usr/src/nvidia-${NVIDIA_DRIVER_VERSION}" && \
     mkdir -p "$DKMS_SRC_DIR" && \
     cp -r NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}/kernel/* "$DKMS_SRC_DIR/" && \
