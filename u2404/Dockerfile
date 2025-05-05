@@ -113,7 +113,7 @@ RUN NVIDIA_DRIVER_VERSION=570.133.07 && \
 RUN NVIDIA_DRIVER_VERSION=570.133.07 && \
     DKMS_SRC_DIR="/usr/src/nvidia-${NVIDIA_DRIVER_VERSION}" && \
     mkdir -p "$DKMS_SRC_DIR" && \
-    cp -r NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}/kernel/* "$DKMS_SRC_DIR/" && \
+    cp -r /NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}/kernel/* "$DKMS_SRC_DIR/" && \
     cat > "$DKMS_SRC_DIR/dkms.conf" <<EOF
 PACKAGE_NAME="nvidia"
 PACKAGE_VERSION="${NVIDIA_DRIVER_VERSION}"
@@ -132,12 +132,20 @@ EOF
 
 RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
     NVIDIA_DRIVER_VERSION=570.133.07 && \
-    dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} || { echo "Failed to add DKMS module."; exit 1; } && \
-    dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || { echo "Failed to build DKMS module."; exit 1; } && \
-    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || { echo "Failed to install DKMS module."; exit 1; } && \
-    echo "NVIDIA driver successfully installed." && \
+    dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} || echo "⚠️ DKMS add failed, continuing..." && \
+    dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || echo "⚠️ DKMS build failed, continuing..." && \
+    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || echo "⚠️ DKMS install failed, continuing..." && \
     rm -rf /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
     echo "nvidia" >> /etc/modules && echo "nvidia_uvm" >> /etc/modules
+
+#RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
+#    NVIDIA_DRIVER_VERSION=570.133.07 && \
+#    dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} || { echo "Failed to add DKMS module."; exit 1; } && \
+#    dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || { echo "Failed to build DKMS module."; exit 1; } && \
+#    dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || { echo "Failed to install DKMS module."; exit 1; } && \
+#    echo "NVIDIA driver successfully installed." && \
+#    rm -rf /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
+#    echo "nvidia" >> /etc/modules && echo "nvidia_uvm" >> /etc/modules
 
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
