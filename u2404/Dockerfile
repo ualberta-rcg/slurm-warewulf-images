@@ -110,24 +110,24 @@ RUN NVIDIA_DRIVER_VERSION=570.133.07 && \
                       --x-library-path=/usr/lib \
                       --kernel-source-path=/lib/modules/${KERNEL_VERSION}/build
                       
-RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
-    NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
-    mkdir -p /usr/src/nvidia-${NVIDIA_DRIVER_VERSION} && \
-    cat <<EOF > /usr/src/nvidia-${NVIDIA_DRIVER_VERSION}/dkms.conf
+RUN NVIDIA_DRIVER_VERSION=${NVIDIA_DRIVER_VERSION} && \
+    DKMS_SRC_DIR="/usr/src/nvidia-${NVIDIA_DRIVER_VERSION}" && \
+    mkdir -p "$DKMS_SRC_DIR" && \
+    cp -r NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}/kernel/* "$DKMS_SRC_DIR/" && \
+    cat > "$DKMS_SRC_DIR/dkms.conf" <<EOF
 PACKAGE_NAME="nvidia"
 PACKAGE_VERSION="${NVIDIA_DRIVER_VERSION}"
-AUTOINSTALL="yes"
-
-MAKE[0]="'make' -j\$(nproc) NV_EXCLUDE_BUILD_MODULES='' KERNEL_UNAME=\${kernelver} modules"
-
+CLEAN="make clean"
+MAKE="make -j$(nproc) NV_EXCLUDE_BUILD_MODULES='' KERNEL_UNAME=\${kernelver} modules"
 BUILT_MODULE_NAME[0]="nvidia"
-DEST_MODULE_LOCATION[0]="/kernel/drivers/video"
 BUILT_MODULE_NAME[1]="nvidia-uvm"
-DEST_MODULE_LOCATION[1]="/kernel/drivers/video"
 BUILT_MODULE_NAME[2]="nvidia-modeset"
-DEST_MODULE_LOCATION[2]="/kernel/drivers/video"
 BUILT_MODULE_NAME[3]="nvidia-drm"
+DEST_MODULE_LOCATION[0]="/kernel/drivers/video"
+DEST_MODULE_LOCATION[1]="/kernel/drivers/video"
+DEST_MODULE_LOCATION[2]="/kernel/drivers/video"
 DEST_MODULE_LOCATION[3]="/kernel/drivers/video"
+AUTOINSTALL="yes"
 EOF
 
 RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
