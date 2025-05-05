@@ -88,10 +88,12 @@ RUN apt-get update && apt-get install -y \
     libglvnd-dev && \
     ln -s /usr/src/linux-headers-${KERNEL_VERSION} /lib/modules/${KERNEL_VERSION}/build
 
+#https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run
+# NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}')
 # Combine NVIDIA driver download, installation, and DKMS setup
-RUN NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
+RUN NVIDIA_DRIVER_VERSION=570.133.07 && \
     echo "Using NVIDIA driver version: $NVIDIA_DRIVER_VERSION" && \
-    wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
+    wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/570.133.07/NVIDIA-Linux-x86_64-570.133.07.run -O /tmp/NVIDIA.run && \
     chmod +x /tmp/NVIDIA.run && \
     # Extract the NVIDIA driver sources
     sh /tmp/NVIDIA.run -x -s --no-kernel-module && \
@@ -129,7 +131,7 @@ DEST_MODULE_LOCATION[3]="/kernel/drivers/video"
 EOF
 
 RUN ls -la /lib/modules/${KERNEL_VERSION}/build && \
-    NVIDIA_DRIVER_VERSION=$(wget -qO- https://us.download.nvidia.com/XFree86/Linux-x86_64/latest.txt | awk '{print $1}') && \
+    NVIDIA_DRIVER_VERSION=570.133.07 && \
     dkms add -m nvidia -v ${NVIDIA_DRIVER_VERSION} || { echo "Failed to add DKMS module."; exit 1; } && \
     dkms build -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || { echo "Failed to build DKMS module."; exit 1; } && \
     dkms install -m nvidia -v ${NVIDIA_DRIVER_VERSION} -k ${KERNEL_VERSION} || { echo "Failed to install DKMS module."; exit 1; } && \
@@ -175,8 +177,9 @@ RUN apt-get purge -y \
     gcc \
     make \
     autoconf \
-    automake && \
-    apt-get autoremove -y && \
+    automake 
+    
+RUN apt-get autoremove -y && \
     apt-get clean && \
     apt-get install openscap-scanner netplan.io -y && \
     rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
