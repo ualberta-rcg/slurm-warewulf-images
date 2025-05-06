@@ -101,6 +101,7 @@ RUN mkdir /slurm-debs && mkdir -p /build && cd /build && \
 
 # Create fake systemctl for environments without systemd
 RUN mkdir -p /tmp/bin && \
+    cp /usr/bin/systemctl /usr/bin/systemctl.bak && \
     echo '#!/bin/sh\nexit 0' > /tmp/bin/systemctl && \
     chmod +x /tmp/bin/systemctl && \
     ln -sf /tmp/bin/systemctl /usr/bin/systemctl
@@ -149,7 +150,8 @@ RUN mkdir -p /etc/X11 && \
 
 # Remove fake systemctl after use
 RUN rm -f /usr/bin/systemctl && \
-    rm -rf /tmp/bin
+    rm -rf /tmp/bin && \
+    cp /usr/bin/systemctl.bak /usr/bin/systemctl
     
 # Optional: Persist the kernel modules into the initramfs
 RUN update-initramfs -u -k ${KERNEL_VERSION}
