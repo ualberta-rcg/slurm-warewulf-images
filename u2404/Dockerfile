@@ -159,6 +159,14 @@ RUN update-initramfs -u -k ${KERNEL_VERSION}
 # Copy Slurm Deb files into the container
 COPY *.deb /slurm-debs/
 
+# Copy Other Deb files into the container
+COPY *.deb /other-debs/
+
+# Download and install the CVMFS APT repo config
+RUN mkdir /other-debs && wget -O /other-debs/cvmfs-release-latest_all.deb \
+    https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
+    apt-get install -y /other-debs/cvmfs-release-latest_all.deb 
+
 # Download Nvidia Datacenter Manager Deb file into the container
 RUN mkdir /nvidia-debs
 RUN wget -O /nvidia-debs/datacenter-gpu-manager_3.3.9_amd64.deb \
