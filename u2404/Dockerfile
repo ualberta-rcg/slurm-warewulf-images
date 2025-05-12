@@ -149,7 +149,7 @@ RUN update-initramfs -u -k ${KERNEL_VERSION}
 COPY *.deb /slurm-debs/
 
 # Copy Other Deb files into the container
-COPY *.deb /other-debs/
+COPY other-debs/*.deb /other-debs/
 
 # Download and install the CVMFS APT repo config and Virtual GL
 RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
