@@ -6,7 +6,6 @@ ENV LD_LIBRARY_PATH=/usr/local/ssl/lib:${LD_LIBRARY_PATH:-}
 ENV DEBIAN_FRONTEND=noninteractive
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
-#ENV KERNEL_VERSION=6.8.0-51-generic
 ENV KERNEL_VERSION=6.8.0-59-generic
 ENV NVIDIA_DRIVER_VERSION=570.133.07
 
@@ -158,6 +157,14 @@ RUN update-initramfs -u -k ${KERNEL_VERSION}
 
 # Copy Slurm Deb files into the container
 COPY *.deb /slurm-debs/
+
+# Copy Other Deb files into the container
+COPY *.deb /other-debs/
+
+# Download and install the CVMFS APT repo config
+RUN mkdir /other-debs && wget -O /other-debs/cvmfs-release-latest_all.deb \
+    https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
+    apt-get install -y /other-debs/cvmfs-release-latest_all.deb 
 
 # Download Nvidia Datacenter Manager Deb file into the container
 RUN mkdir /nvidia-debs
