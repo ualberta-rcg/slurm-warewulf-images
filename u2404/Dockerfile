@@ -137,16 +137,6 @@ RUN mkdir -p /dev/nvidia && \
     [ -e /dev/nvidia-uvm ] || mknod -m 666 /dev/nvidia-uvm c 243 0 && \
     [ -e /dev/nvidia-uvm-tools ] || mknod -m 666 /dev/nvidia-uvm-tools c 243 1
 
-# Create minimal /etc/X11/xorg.conf if it doesn't exist
-RUN mkdir -p /etc/X11 && \
-    [ ! -f /etc/X11/xorg.conf ] && echo "Creating minimal xorg.conf..." && \
-    printf '%s\n' \
-    'Section "Device"' \
-    '    Identifier     "Device0"' \
-    '    Driver         "nvidia"' \
-    '    VendorName     "NVIDIA Corporation"' \
-    'EndSection' > /etc/X11/xorg.conf
-
 # Remove fake systemctl after use
 RUN rm -f /usr/bin/systemctl && \
     rm -rf /tmp/bin && \
@@ -161,10 +151,13 @@ COPY *.deb /slurm-debs/
 # Copy Other Deb files into the container
 COPY *.deb /other-debs/
 
-# Download and install the CVMFS APT repo config
-RUN mkdir /other-debs && wget -O /other-debs/cvmfs-release-latest_all.deb \
+# Download and install the CVMFS APT repo config and Virtual GL
+RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
     https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
-    apt-get install -y /other-debs/cvmfs-release-latest_all.deb 
+    DEBIAN_FRONTEND=noninteractive apt-get install -y /other-debs/cvmfs-release-latest_all.deb && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y /other-debs/virtualgl_3.1.3_amd64.deb && \
+    rm -rf /other-debs && \
+    /opt/VirtualGL/bin/vglserver_config -s
 
 # Download Nvidia Datacenter Manager Deb file into the container
 RUN mkdir /nvidia-debs
@@ -178,6 +171,7 @@ COPY redfish-exporter.service /etc/systemd/system/
 COPY prometheus-slurm-exporter.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
 COPY redfish_exporter /usr/sbin/
+COPY xorg.conf /etc/X11/
 RUN chmod +x /usr/local/sbin/firstboot.sh && \
     mkdir -p /etc/systemd/system/multi-user.target.wants && \
     ln -s /etc/systemd/system/firstboot.service /etc/systemd/system/multi-user.target.wants/firstboot.service || true
