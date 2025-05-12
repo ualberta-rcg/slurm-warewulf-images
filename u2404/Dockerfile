@@ -164,8 +164,8 @@ COPY *.deb /other-debs/
 # Download and install the CVMFS APT repo config and Virtual GL
 RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
     https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
-    apt-get install -y /other-debs/cvmfs-release-latest_all.deb && \
-    apt-get install -y /other-debs/virtualgl_3.1.3_amd64.deb && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y /other-debs/cvmfs-release-latest_all.deb && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y /other-debs/virtualgl_3.1.3_amd64.deb && \
     rm -rf /other-debs && \
     /opt/VirtualGL/bin/vglserver_config -s
 
