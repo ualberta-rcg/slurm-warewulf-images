@@ -181,6 +181,7 @@ COPY redfish-exporter.service /etc/systemd/system/
 COPY prometheus-slurm-exporter.service /etc/systemd/system/
 COPY firstboot.sh /usr/local/sbin/
 COPY redfish_exporter /usr/sbin/
+COPY xorg.conf /etc/X11/
 RUN chmod +x /usr/local/sbin/firstboot.sh && \
     mkdir -p /etc/systemd/system/multi-user.target.wants && \
     ln -s /etc/systemd/system/firstboot.service /etc/systemd/system/multi-user.target.wants/firstboot.service || true
