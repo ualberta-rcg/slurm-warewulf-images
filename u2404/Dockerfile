@@ -157,8 +157,9 @@ RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
     DEBIAN_FRONTEND=noninteractive apt-get install -y /other-debs/cvmfs-release-latest_all.deb && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y /other-debs/virtualgl_3.1.3_amd64.deb && \
     rm -rf /other-debs && \
-    /opt/VirtualGL/bin/vglserver_config -s
-
+    /opt/VirtualGL/bin/vglserver_config \
+    +glx +s +f +t
+    
 # Download Nvidia Datacenter Manager Deb file into the container
 RUN mkdir /nvidia-debs
 RUN wget -O /nvidia-debs/datacenter-gpu-manager_3.3.9_amd64.deb \
