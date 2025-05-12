@@ -162,9 +162,12 @@ COPY *.deb /slurm-debs/
 COPY *.deb /other-debs/
 
 # Download and install the CVMFS APT repo config
-RUN mkdir /other-debs && wget -O /other-debs/cvmfs-release-latest_all.deb \
+RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
     https://cvmrepo.s3.cern.ch/cvmrepo/apt/cvmfs-release-latest_all.deb && \
-    apt-get install -y /other-debs/cvmfs-release-latest_all.deb 
+    apt-get install -y /other-debs/cvmfs-release-latest_all.deb && \
+    rm /other-debs/cvmfs-release-latest_all.deb
+
+run apt-get install -y /other-debs/
 
 # Download Nvidia Datacenter Manager Deb file into the container
 RUN mkdir /nvidia-debs
