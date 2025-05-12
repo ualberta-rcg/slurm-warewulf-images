@@ -137,16 +137,6 @@ RUN mkdir -p /dev/nvidia && \
     [ -e /dev/nvidia-uvm ] || mknod -m 666 /dev/nvidia-uvm c 243 0 && \
     [ -e /dev/nvidia-uvm-tools ] || mknod -m 666 /dev/nvidia-uvm-tools c 243 1
 
-# Create minimal /etc/X11/xorg.conf if it doesn't exist
-RUN mkdir -p /etc/X11 && \
-    [ ! -f /etc/X11/xorg.conf ] && echo "Creating minimal xorg.conf..." && \
-    printf '%s\n' \
-    'Section "Device"' \
-    '    Identifier     "Device0"' \
-    '    Driver         "nvidia"' \
-    '    VendorName     "NVIDIA Corporation"' \
-    'EndSection' > /etc/X11/xorg.conf
-
 # Remove fake systemctl after use
 RUN rm -f /usr/bin/systemctl && \
     rm -rf /tmp/bin && \
