@@ -20,7 +20,9 @@ jobs:
 
       - name: 📂 Copy .deb Files to Branch Directory
         run: |
+          mkdir ./u2404/other-debs
           cp -v slurm-debs/*u2404.deb ./u2404/   
+          cp -v other-debs/*.deb ./u2404/other-debs/  
 
       - name: 🐳 Build Docker Image
         run: |
