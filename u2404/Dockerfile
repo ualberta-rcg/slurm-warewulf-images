@@ -26,6 +26,8 @@ RUN apt-get update && apt-get install -y \
     iproute2 \
     initramfs-tools \
     gnupg \
+    procps \
+    util-linux \
     lsb-release \
     ca-certificates \
     tzdata \
@@ -176,6 +178,38 @@ COPY xorg.conf /etc/X11/
 RUN chmod +x /usr/local/sbin/firstboot.sh && \
     mkdir -p /etc/systemd/system/multi-user.target.wants && \
     ln -s /etc/systemd/system/firstboot.service /etc/systemd/system/multi-user.target.wants/firstboot.service || true
+
+# Enable root autologin on tty1
+RUN mkdir -p /etc/systemd/system/getty@tty1.service.d && \
+    bash -c 'cat > /etc/systemd/system/getty@tty1.service.d/override.conf <<EOF
+[Service]
+ExecStart=
+ExecStart=-/sbin/agetty --autologin root --noclear %I \$TERM
+EOF'
+
+# Append system summary to root's .bashrc if not already present
+RUN bash -c 'BASHRC="/root/.bashrc"; \
+    MARKER="### SYS SUMMARY START ###"; \
+    if ! grep -q "$MARKER" "$BASHRC"; then \
+    cat >> "$BASHRC" <<EOF
+
+$MARKER
+if [[ \$(tty) == "/dev/tty1" ]]; then
+    clear
+    echo "🖥️  \$(hostname) — Auto Login System Summary"
+    echo "📆 Date:         \$(date)"
+    echo "🆕 Uptime:       \$(uptime -p)"
+    echo "🧠 Memory:       \$(free -h | awk \'/Mem:/ {print \$3 \" used / \" \$2}\')"
+    echo "💽 Disk:         \$(df -h / | awk \'/\\/\$/ {print \$3 \" used / \" \$2}\')"
+    echo "📡 IP Address:   \$(hostname -I | awk \'{print \$1}\')"
+    echo "🔥 Load Avg:     \$(uptime | awk -F\"load average:\" \'{ print \$2 }\')"
+    echo
+    echo "Press Ctrl+C to exit this summary."
+    sleep 10
+fi
+### SYS SUMMARY END ###
+EOF \
+    ; fi'
 
 # Clean Up
 RUN apt-get purge -y \
