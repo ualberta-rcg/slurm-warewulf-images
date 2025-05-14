@@ -181,35 +181,31 @@ RUN chmod +x /usr/local/sbin/firstboot.sh && \
 
 # Enable root autologin on tty1
 RUN mkdir -p /etc/systemd/system/getty@tty1.service.d && \
-    bash -c 'cat > /etc/systemd/system/getty@tty1.service.d/override.conf <<EOF
-[Service]
-ExecStart=
-ExecStart=-/sbin/agetty --autologin root --noclear %I \$TERM
-EOF'
+    echo '[Service]' > /etc/systemd/system/getty@tty1.service.d/override.conf && \
+    echo 'ExecStart=' >> /etc/systemd/system/getty@tty1.service.d/override.conf && \
+    echo 'ExecStart=-/sbin/agetty --autologin root --noclear %I $TERM' >> /etc/systemd/system/getty@tty1.service.d/override.conf
 
-# Append system summary to root's .bashrc if not already present
-RUN bash -c 'BASHRC="/root/.bashrc"; \
+# Append system summary to root's .bashrc (only once)
+RUN BASHRC="/root/.bashrc"; \
     MARKER="### SYS SUMMARY START ###"; \
     if ! grep -q "$MARKER" "$BASHRC"; then \
-    cat >> "$BASHRC" <<EOF
-
-$MARKER
-if [[ \$(tty) == "/dev/tty1" ]]; then
-    clear
-    echo "🖥️  \$(hostname) — Auto Login System Summary"
-    echo "📆 Date:         \$(date)"
-    echo "🆕 Uptime:       \$(uptime -p)"
-    echo "🧠 Memory:       \$(free -h | awk \'/Mem:/ {print \$3 \" used / \" \$2}\')"
-    echo "💽 Disk:         \$(df -h / | awk \'/\\/\$/ {print \$3 \" used / \" \$2}\')"
-    echo "📡 IP Address:   \$(hostname -I | awk \'{print \$1}\')"
-    echo "🔥 Load Avg:     \$(uptime | awk -F\"load average:\" \'{ print \$2 }\')"
-    echo
-    echo "Press Ctrl+C to exit this summary."
-    sleep 10
-fi
-### SYS SUMMARY END ###
-EOF \
-    ; fi'
+    echo "" >> "$BASHRC"; \
+    echo "$MARKER" >> "$BASHRC"; \
+    echo 'if [[ $(tty) == "/dev/tty1" ]]; then' >> "$BASHRC"; \
+    echo '    clear' >> "$BASHRC"; \
+    echo '    echo "🖥️  $(hostname) — Auto Login System Summary"' >> "$BASHRC"; \
+    echo '    echo "📆 Date:         $(date)"' >> "$BASHRC"; \
+    echo '    echo "🆕 Uptime:       $(uptime -p)"' >> "$BASHRC"; \
+    echo '    echo "🧠 Memory:       $(free -h | awk \x27/Mem:/ {print \$3 \" used / \" \$2}\x27)"' >> "$BASHRC"; \
+    echo '    echo "💽 Disk:         $(df -h / | awk \x27/\/$/ {print \$3 \" used / \" \$2}\x27)"' >> "$BASHRC"; \
+    echo '    echo "📡 IP Address:   $(hostname -I | awk \x27{print \$1}\x27)"' >> "$BASHRC"; \
+    echo '    echo "🔥 Load Avg:     $(uptime | awk -F\"load average:\" \x27{ print \$2 }\x27)"' >> "$BASHRC"; \
+    echo '    echo' >> "$BASHRC"; \
+    echo '    echo "Press Ctrl+C to exit this summary."' >> "$BASHRC"; \
+    echo '    sleep 10' >> "$BASHRC"; \
+    echo 'fi' >> "$BASHRC"; \
+    echo "### SYS SUMMARY END ###" >> "$BASHRC"; \
+    fi
 
 # Clean Up
 RUN apt-get purge -y \
