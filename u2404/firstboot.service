@@ -8,6 +8,7 @@ Type=oneshot
 EnvironmentFile=-/etc/environment
 ExecStartPre=/bin/sleep 15
 ExecStart=/usr/local/sbin/firstboot.sh
+TimeoutStartSec=600s
 RemainAfterExit=yes
 
 [Install]
