@@ -93,9 +93,10 @@ RUN apt-get update && apt-get install -y \
 
 # Create build directory
 # Download the NVIDIA driver
+# Old Line: https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
 RUN mkdir /slurm-debs && mkdir -p /build && cd /build && \
     echo "📥 Downloading NVIDIA driver ${NVIDIA_DRIVER_VERSION}..." && \
-    wget -q https://us.download.nvidia.com/XFree86/Linux-x86_64/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
+    wget -q https://us.download.nvidia.com/tesla/${NVIDIA_DRIVER_VERSION}/NVIDIA-Linux-x86_64-${NVIDIA_DRIVER_VERSION}.run -O /tmp/NVIDIA.run && \
     echo "📦 Extracting driver..." && \
     chmod +x /tmp/NVIDIA.run && \
     /tmp/NVIDIA.run --extract-only --target /build/nvidia && \
