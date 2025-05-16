@@ -8,9 +8,11 @@ Type=oneshot
 EnvironmentFile=-/etc/environment
 ExecStartPre=/bin/sleep 15
 ExecStart=/usr/local/sbin/firstboot.sh
-TimeoutStartSec=600s
+# Set to infinity (0) to never time out
+TimeoutStartSec=0
+# Ensure proper exit status is passed through
+SuccessExitStatus=0
 RemainAfterExit=yes
 
 [Install]
 WantedBy=multi-user.target
-
