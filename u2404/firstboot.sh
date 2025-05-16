@@ -13,8 +13,11 @@ for playbook in $(ls /etc/ansible/playbooks/*.yaml | sort); do
     ansible-playbook "$playbook"
 done
 
+echo "First boot configuration complete"
+
 rm /etc/systemd/system/firstboot.service
 #rm -- "$0"
 systemctl daemon-reload
 
-echo "First boot configuration complete"
+
+echo "First boot Service Removed"
