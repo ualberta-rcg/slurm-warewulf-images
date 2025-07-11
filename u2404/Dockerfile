@@ -164,8 +164,15 @@ RUN cd /tmp && unzip *.zip && \
     cd dell-nfs-client-driver-ext-BR_MAIN && \
     ./build-deb.sh --dkms && \
     cd deb-dist/ && \
-    apt-get install -y ./*.deb && \
-    dkms install -m multipathnfs -v 4.0.30-csd -k ${KERNEL_VERSION}
+    apt-get install -y ./*.deb 
+    
+# DMKS Kernel Change
+RUN dkms status && \
+    MODULE=$(dkms status | head -n1 | cut -d',' -f1 | awk '{print $1}') && \
+    VERSION=$(dkms status | head -n1 | cut -d',' -f1 | awk '{print $2}') && \
+    echo "Installing DKMS module: $MODULE version: $VERSION" && \
+    dkms install -m "$MODULE" -v "$VERSION" -k ${KERNEL_VERSION}
+
 
 # Download and install the CVMFS APT repo config and Virtual GL
 RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
