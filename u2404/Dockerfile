@@ -183,7 +183,7 @@ RUN bash -c '\
       VERSION=$(echo "$DKMS_LINE" | cut -d"/" -f2 | cut -d":" -f1) && \
       echo "📦 Installing DKMS module: $MODULE version: $VERSION for kernel: $KERNEL_VERSION" && \
       dkms install -m "$MODULE" -v "$VERSION" -k "$KERNEL_VERSION" \
-
+    '
 
 # Download and install the CVMFS APT repo config and Virtual GL
 RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
