@@ -72,6 +72,7 @@ RUN apt-get update && apt-get install -y \
     rrdtool \
     lua5.3 \
     dkms \
+    dh-dkms \
     # Used by warewulf to partition disks (cvmfs cache, localscratch) \
     ignition \
     # Used by warewulf to parititon disks \
@@ -150,10 +151,21 @@ RUN rm -f /usr/bin/systemctl && \
 RUN update-initramfs -u -k ${KERNEL_VERSION}
 
 # Copy Slurm Deb files into the container
+COPY *.zip /tmp/
+
+# Copy Slurm Deb files into the container
 COPY *.deb /slurm-debs/
 
 # Copy Other Deb files into the container
 COPY other-debs/*.deb /other-debs/
+
+# Build and install DKMS driver
+RUN cd /tmp && unzip *.zip && \
+    cd dell-nfs-client-driver-ext-BR_MAIN && \
+    ./build-deb.sh --dkms && \
+    cd deb-dist/ && \
+    apt-get install -y ./*.deb && \
+    dkms install -m multipathnfs -v 4.0.30-csd -k ${KERNEL_VERSION}
 
 # Download and install the CVMFS APT repo config and Virtual GL
 RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
@@ -163,7 +175,7 @@ RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
     rm -rf /other-debs && \
     /opt/VirtualGL/bin/vglserver_config \
     +glx +s +f +t
-    
+
 # Download Nvidia Datacenter Manager Deb file into the container
 RUN mkdir /nvidia-debs
 RUN wget -O /nvidia-debs/datacenter-gpu-manager_3.3.9_amd64.deb \
@@ -201,6 +213,8 @@ RUN apt-get purge -y \
     libglvnd-dev \
     gcc \
     make \
+    dh-dkms \
+    dkms \
     autoconf \
     automake 
     
