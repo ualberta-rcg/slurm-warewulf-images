@@ -177,11 +177,12 @@ RUN cd /tmp/dell-nfs-client-driver-ext-BR_MAIN && \
     apt-get install -y "$DEB_FILE"
     
 # DMKS Kernel Change
-RUN dkms status && \
-    MODULE=$(dkms status | head -n1 | cut -d',' -f1 | awk '{print $1}') && \
-    VERSION=$(dkms status | head -n1 | cut -d',' -f1 | awk '{print $2}') && \
-    echo "Installing DKMS module: $MODULE version: $VERSION" && \
-    dkms install -m "$MODULE" -v "$VERSION" -k ${KERNEL_VERSION}
+RUN bash -c '\
+      DKMS_LINE=$(dkms status | grep -v "^$" | grep -v "nvidia" | head -n1) && \
+      MODULE=$(echo "$DKMS_LINE" | cut -d"/" -f1) && \
+      VERSION=$(echo "$DKMS_LINE" | cut -d"/" -f2 | cut -d":" -f1) && \
+      echo "📦 Installing DKMS module: $MODULE version: $VERSION for kernel: $KERNEL_VERSION" && \
+      dkms install -m "$MODULE" -v "$VERSION" -k "$KERNEL_VERSION" \
 
 
 # Download and install the CVMFS APT repo config and Virtual GL
