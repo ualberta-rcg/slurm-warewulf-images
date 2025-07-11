@@ -163,8 +163,10 @@ COPY other-debs/*.deb /other-debs/
 RUN cd /tmp && unzip *.zip && \
     cd dell-nfs-client-driver-ext-BR_MAIN && \
     ./build-deb.sh --dkms && \
-    cd deb-dist/ && \
-    apt-get install -y ./*.deb 
+    cd deb-dist && \
+    DEB_FILE=$(find . -name "*.deb" | head -n1) && \
+    echo "📦 Installing $DEB_FILE" && \
+    apt-get install -y "$DEB_FILE"
     
 # DMKS Kernel Change
 RUN dkms status && \
