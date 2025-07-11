@@ -164,7 +164,7 @@ RUN cd /tmp && unzip *.zip && \
     cd dell-nfs-client-driver-ext-BR_MAIN && \
     sed -i 's/set -e/set -e\nset -x/' build-deb.sh
     
-RUN cd /tmp/dell-nfs-client-driver-ext-BR_MAIN **\
+RUN cd /tmp/dell-nfs-client-driver-ext-BR_MAIN && \
     ./build-deb.sh --dkms && \
     cd deb-dist && \
     DEB_FILE=$(find . -name "*.deb" | head -n1) && \
