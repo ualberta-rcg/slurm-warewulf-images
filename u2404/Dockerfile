@@ -159,11 +159,13 @@ COPY *.deb /slurm-debs/
 # Copy Other Deb files into the container
 COPY other-debs/*.deb /other-debs/
 
-# Build Driver
+# Build and install DKMS driver
 RUN cd /tmp && unzip *.zip && \
     cd dell-nfs-client-driver-ext-BR_MAIN && \
     ./build-deb.sh --dkms && \
-    cd deb-dist/ && apt-get install *.deb
+    cd deb-dist/ && \
+    apt-get install -y ./*.deb && \
+    dkms install -m multipathnfs -v 4.0.30-csd -k ${KERNEL_VERSION}
 
 # Download and install the CVMFS APT repo config and Virtual GL
 RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
