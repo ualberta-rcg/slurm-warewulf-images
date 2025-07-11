@@ -73,6 +73,11 @@ RUN apt-get update && apt-get install -y \
     lua5.3 \
     dkms \
     dh-dkms \
+    build-essential \
+    devscripts \
+    debhelper \
+    dh-make \
+    fakeroot \
     # Used by warewulf to partition disks (cvmfs cache, localscratch) \
     ignition \
     # Used by warewulf to parititon disks \
@@ -227,6 +232,10 @@ RUN apt-get purge -y \
     make \
     dh-dkms \
     dkms \
+    devscripts \
+    debhelper \
+    dh-make \
+    fakeroot \
     autoconf \
     automake 
     
