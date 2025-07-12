@@ -217,33 +217,9 @@ RUN mkdir -p /etc/systemd/system/getty@tty1.service.d && \
     echo 'ExecStart=' >> /etc/systemd/system/getty@tty1.service.d/override.conf && \
     echo 'ExecStart=-/sbin/agetty --autologin root --noclear %I $TERM' >> /etc/systemd/system/getty@tty1.service.d/override.conf
 
-# Clean Up
-RUN apt-get purge -y \
-    build-essential \
-    cmake \
-    libtool \
-    zlib1g-dev \
-    liblua5.3-0 \
-    pkg-config \
-    xorg-dev \
-    libx11-dev \
-    libxext-dev \
-    libglvnd-dev \
-    gcc \
-    make \
-    dh-dkms \
-    dkms \
-    devscripts \
-    debhelper \
-    dh-make \
-    fakeroot \
-    autoconf \
-    automake 
-    
-RUN apt-get autoremove -y && \
-    apt-get clean && \
+RUN apt-get clean && \
     apt-get install -y openscap-scanner netplan.io && \
-    rm -rf /usr/src/* /var/lib/apt/lists/* /tmp/* \
+    rm -rf /usr/src/* /var/lib/apt/lists/* \
            /var/tmp/* /var/log/* /usr/share/doc /usr/share/man \
            /usr/share/locale /usr/share/info && \
     rm /usr/sbin/policy-rc.d && \
