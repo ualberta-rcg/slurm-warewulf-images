@@ -174,7 +174,9 @@ RUN cd /tmp/dell-nfs-client-driver-ext-BR_MAIN && \
     cd deb-dist && \
     DEB_FILE=$(find . -name "*.deb" | head -n1) && \
     echo "📦 Installing $DEB_FILE" && \
-    dpkg -i "$DEB_FILE" || true 
+    dpkg -i "$DEB_FILE" || true && \
+    dpkg-deb -c "$DEB_FILE" && \
+    cp "$DEB_FILE" /usr/local/
     
 # DMKS Kernel Change
 RUN bash -c '\
@@ -193,11 +195,6 @@ RUN wget -O /other-debs/cvmfs-release-latest_all.deb \
     rm -rf /other-debs && \
     /opt/VirtualGL/bin/vglserver_config \
     +glx +s +f +t
-
-# Download Nvidia Datacenter Manager Deb file into the container
-RUN mkdir /nvidia-debs
-RUN wget -O /nvidia-debs/datacenter-gpu-manager_3.3.9_amd64.deb \
-    https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64/datacenter-gpu-manager_3.3.9_amd64.deb
 
 # Copy the firstboot files
 COPY firstboot.service /etc/systemd/system/
