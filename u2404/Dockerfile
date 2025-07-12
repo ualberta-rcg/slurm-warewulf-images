@@ -174,7 +174,7 @@ RUN cd /tmp/dell-nfs-client-driver-ext-BR_MAIN && \
     cd deb-dist && \
     DEB_FILE=$(find . -name "*.deb" | head -n1) && \
     echo "📦 Installing $DEB_FILE" && \
-    apt-get install -y "$DEB_FILE"
+    dpkg -i "$DEB_FILE" || true 
     
 # DMKS Kernel Change
 RUN bash -c '\
