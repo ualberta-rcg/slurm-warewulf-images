@@ -36,7 +36,7 @@ jobs:
           sudo tar -xzf slurm-${{ vars.SLURM_VERSION }}.tar.gz && cd slurm-slurm-${{ vars.SLURM_VERSION }}
           
           # Install Slurm build dependencies
-          sudo mk-build-deps -ir --tool='apt-get -qq -y -o Debug::pkgProblemResolver=yes --no-install-recommends' debian/control
+          sudo mk-build-deps -ir --tool='apt-get -qq -y -o Debug::pkgProblemResolver=yes' debian/control
           
           # Build the DEB packages
           sudo debuild -b -uc -us >/dev/null
