@@ -170,6 +170,7 @@ RUN cd /tmp && unzip *.zip && \
     sed -i 's/set -e/set -e\nset -x/' build-deb.sh
     
 RUN cd /tmp/dell-nfs-client-driver-ext-BR_MAIN && \
+    apt-get update && apt-get install -y linux-headers-$(uname -r) && \
     ./build-deb.sh --dkms && \
     cd deb-dist && \
     DEB_FILE=$(find . -name "*.deb" | head -n1) && \
